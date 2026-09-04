@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu } from 'electron';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { initDatabase } from './db/database.js';
@@ -35,12 +36,25 @@ async function createWindow() {
     mainWindow?.show();
   });
 
-  if (isDev && process.env.VITE_DEV_SERVER_URL) {
-    await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-  } else if (isDev) {
-    await mainWindow.loadURL('http://localhost:5173');
+  const distPath = path.join(__dirname, '../dist/index.html');
+
+  if (process.env.VITE_DEV_SERVER_URL) {
+    try {
+      await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+    } catch (err) {
+      console.warn('[Main] Failed to connect to dev server URL, falling back to dist/index.html:', err);
+      if (fs.existsSync(distPath)) {
+        await mainWindow.loadFile(distPath);
+      }
+    }
+  } else if (fs.existsSync(distPath)) {
+    await mainWindow.loadFile(distPath);
   } else {
-    await mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    try {
+      await mainWindow.loadURL('http://localhost:5173');
+    } catch {
+      console.error('[Main] Neither dist/index.html nor dev server is reachable.');
+    }
   }
 
   mainWindow.on('closed', () => {
