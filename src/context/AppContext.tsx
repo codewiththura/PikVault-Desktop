@@ -7,6 +7,7 @@ import {
   ViewMode, 
   GlobalSearchResult 
 } from '../types';
+import { getApi } from '../services/storageAdapter';
 
 interface AppContextType {
   // Accounts
@@ -89,11 +90,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const api = window.electronAPI;
+  const api = getApi();
 
   // Load Accounts
   const loadAccounts = useCallback(async () => {
-    if (!api) return;
     try {
       setIsLoading(true);
       const data = await api.getAccounts();
@@ -107,7 +107,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Load Items for Account
   const loadItems = useCallback(async (accountId: string) => {
-    if (!api) return;
     try {
       const items = await api.getItemsByAccountId(accountId);
       setActiveItems(items);
@@ -118,10 +117,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Fetch db path & initialize
   useEffect(() => {
-    if (api) {
-      api.getDbPath().then(setDbPath).catch(console.error);
-      loadAccounts();
-    }
+    api.getDbPath().then(setDbPath).catch(console.error);
+    loadAccounts();
   }, [api, loadAccounts]);
 
   // When selected account changes, load items
@@ -136,10 +133,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Account CRUD
   const createAccount = async (data: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!api) return null;
     try {
       const created = await api.createAccount(data);
       await loadAccounts();
+      if (created) {
+        setSelectedAccountId(created.id);
+      }
       return created;
     } catch (err: any) {
       setError(err?.message || 'Failed to create account');
