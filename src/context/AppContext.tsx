@@ -5,7 +5,9 @@ import {
   AccountSortField, 
   SortDirection, 
   ViewMode, 
-  GlobalSearchResult 
+  GlobalSearchResult,
+  ThemeMode,
+  FontSizeSetting
 } from '../types';
 import { getApi } from '../services/storageAdapter';
 
@@ -52,6 +54,14 @@ interface AppContextType {
   jumpToItem: (accountId: string, itemId: string) => Promise<void>;
   highlightedItemId: string | null;
 
+  // Settings & Appearance
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
+  fontSize: FontSizeSetting;
+  setFontSize: (size: FontSizeSetting) => void;
+  isSettingsModalOpen: boolean;
+  setIsSettingsModalOpen: (open: boolean) => void;
+
   // Backup & Restore
   exportBackup: () => Promise<{ success: boolean; filePath?: string; error?: string }>;
   importBackup: () => Promise<{ success: boolean; importedCount?: number; error?: string }>;
@@ -84,6 +94,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
   const [globalSearchResults, setGlobalSearchResults] = useState<GlobalSearchResult[]>([]);
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
+
+  // Settings & Theme Preferences
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    try {
+      return (localStorage.getItem('vault_theme_pref') as ThemeMode) || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const [fontSize, setFontSizeState] = useState<FontSizeSetting>(() => {
+    try {
+      return (localStorage.getItem('vault_fontsize_pref') as FontSizeSetting) || 'medium';
+    } catch {
+      return 'medium';
+    }
+  });
+
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+
+  const setTheme = (newTheme: ThemeMode) => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem('vault_theme_pref', newTheme);
+    } catch {}
+  };
+
+  const setFontSize = (newSize: FontSizeSetting) => {
+    setFontSizeState(newSize);
+    try {
+      localStorage.setItem('vault_fontsize_pref', newSize);
+    } catch {}
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const pxMap: Record<FontSizeSetting, string> = {
+      small: '11px',
+      medium: '13px',
+      large: '15px',
+      xlarge: '17px',
+    };
+    document.documentElement.style.setProperty('--base-font-size', pxMap[fontSize] || '13px');
+  }, [fontSize]);
 
   // App Meta
   const [dbPath, setDbPath] = useState<string>('');
@@ -147,7 +204,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateAccount = async (data: Partial<Account> & { id: string }) => {
-    if (!api) return;
     try {
       await api.updateAccount(data);
       await loadAccounts();
@@ -157,7 +213,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteAccount = async (id: string) => {
-    if (!api) return;
     try {
       await api.deleteAccount(id);
       if (selectedAccountId === id) {
@@ -171,7 +226,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Stored Items CRUD
   const createItem = async (data: Omit<StoredItem, 'id' | 'createdAt'>) => {
-    if (!api) return;
     try {
       await api.createItem(data);
       if (selectedAccountId) {
@@ -184,7 +238,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateItem = async (data: Partial<StoredItem> & { id: string }) => {
-    if (!api) return;
     try {
       await api.updateItem(data);
       if (selectedAccountId) {
@@ -197,7 +250,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteItem = async (id: string) => {
-    if (!api) return;
     try {
       await api.deleteItem(id);
       if (selectedAccountId) {
@@ -256,7 +308,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Global Search across ALL accounts
   const performGlobalSearch = async (query: string) => {
     setGlobalSearchQuery(query);
-    if (!api || !query.trim()) {
+    if (!query.trim()) {
       setGlobalSearchResults([]);
       return;
     }
@@ -281,12 +333,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Backup handlers
   const exportBackup = async () => {
-    if (!api) return { success: false, error: 'API unavailable' };
     return api.exportBackupJson();
   };
 
   const importBackup = async () => {
-    if (!api) return { success: false, error: 'API unavailable' };
     const res = await api.importBackupJson();
     if (res.success) {
       await loadAccounts();
@@ -334,6 +384,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         performGlobalSearch,
         jumpToItem,
         highlightedItemId,
+        theme,
+        setTheme,
+        fontSize,
+        setFontSize,
+        isSettingsModalOpen,
+        setIsSettingsModalOpen,
         exportBackup,
         importBackup,
         dbPath,

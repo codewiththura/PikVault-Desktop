@@ -1,4 +1,6 @@
 export type FileType = 'mp4' | 'mkv' | 'zip' | 'pdf' | 'png' | 'jpg' | 'txt' | string;
+export type ThemeMode = 'dark' | 'light';
+export type FontSizeSetting = 'small' | 'medium' | 'large' | 'xlarge';
 
 export interface StoredItem {
   id: string;
