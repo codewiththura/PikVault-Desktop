@@ -1,0 +1,41 @@
+{
+  "name": "account-vault-desktop",
+  "version": "1.0.0",
+  "description": "Standalone Linux Desktop Account & Storage Catalog App built with Electron, React, TypeScript, and isolated SQLite.",
+  "main": "dist-electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:electron": "node ./scripts/dev.mjs",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:react": "vite build",
+    "build": "npm run build:electron && npm run build:react",
+    "start": "electron --no-sandbox .",
+    "test": "node --test tests/**/*.test.mjs"
+  },
+  "keywords": [
+    "electron",
+    "react",
+    "typescript",
+    "sqlite",
+    "linux",
+    "desktop"
+  ],
+  "author": "Senior Developer",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sql.js": "^1.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@types/sql.js": "^1.4.9",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^34.2.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}
