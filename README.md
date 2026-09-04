@@ -60,6 +60,11 @@ Adhering strictly to a native desktop aesthetic:
   - **Export**: Generates a portable, versioned JSON snapshot containing all accounts and items.
   - **Import**: Allows restoring or migrating data into SQLite with transactional consistency.
 
+### 6. ⚙️ Theme Toggle & Dynamic Font Size Customization
+- **Dark & Light Mode**: Switch between High-Contrast Dark Monochrome and Clean High-Contrast Light Monochrome themes.
+- **Adjustable Font Size**: Choose between `Small (11px)`, `Medium (13px - Default)`, `Large (15px)`, and `X-Large (17px)` with real-time live preview.
+- **Persistent Preferences**: Preferences are saved and automatically restored across app restarts.
+
 ---
 
 ## 🏛 Architecture & Codebase Structure
