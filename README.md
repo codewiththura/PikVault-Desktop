@@ -88,6 +88,8 @@ Built following **SOLID**, **DRY**, and **KISS** software engineering principles
 │   ├── utils/
 │   │   ├── storage.ts      # 6 GB quota calculation & byte-formatting utilities
 │   │   └── date.ts         # Date/time formatters
+│   ├── services/
+│   │   └── storageAdapter.ts # Universal storage adapter (native Electron SQLite + browser fallback)
 │   ├── context/
 │   │   └── AppContext.tsx  # Central state management (accounts, items, search, backups)
 │   ├── components/
