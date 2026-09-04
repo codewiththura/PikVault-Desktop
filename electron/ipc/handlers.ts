@@ -3,11 +3,26 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { AccountRepo } from '../db/accountRepo.js';
 import { ItemRepo } from '../db/itemRepo.js';
+import { SettingsRepo } from '../db/settingsRepo.js';
 import { getDbPath, persistDatabase, getDb } from '../db/database.js';
 import { Account, StoredItem, BackupData } from '../types.js';
 
 export function registerIpcHandlers(): void {
+  // Settings & Preferences
+  ipcMain.handle('settings:get', async (_, key: string) => {
+    return SettingsRepo.get(key);
+  });
+
+  ipcMain.handle('settings:getAll', async () => {
+    return SettingsRepo.getAll();
+  });
+
+  ipcMain.handle('settings:set', async (_, key: string, value: string) => {
+    return SettingsRepo.set(key, value);
+  });
+
   // Accounts
+
   ipcMain.handle('accounts:getAll', async () => {
     return AccountRepo.getAll();
   });

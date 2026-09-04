@@ -4,7 +4,7 @@ import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { useApp } from '../../context/AppContext';
 import { SunIcon, MoonIcon, CheckIcon } from '../common/Icons';
-import { ThemeMode, FontSizeSetting } from '../../types';
+import { FontSizeSetting } from '../../types';
 
 interface SettingsModalProps {
   isOpen: boolean;

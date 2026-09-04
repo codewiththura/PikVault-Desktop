@@ -5,6 +5,7 @@ import path from 'node:path';
 import { initDatabase, getDbPath, persistDatabase } from '../dist-electron/db/database.js';
 import { AccountRepo } from '../dist-electron/db/accountRepo.js';
 import { ItemRepo } from '../dist-electron/db/itemRepo.js';
+import { SettingsRepo } from '../dist-electron/db/settingsRepo.js';
 
 test('SQLite Database Engine & Schema Test', async () => {
   // Use isolated test data directory
@@ -18,7 +19,16 @@ test('SQLite Database Engine & Schema Test', async () => {
   await initDatabase();
   assert.ok(fs.existsSync(getDbPath()), 'Database file should exist');
 
+  // 1b. Test SettingsRepo in SQLite
+  const initialSettings = SettingsRepo.getAll();
+  assert.ok(initialSettings.vault_fontsize_pref, 'Default font size should be seeded');
+  SettingsRepo.set('vault_fontsize_pref', 'large');
+  assert.equal(SettingsRepo.get('vault_fontsize_pref'), 'large');
+  SettingsRepo.set('vault_theme_pref', 'light');
+  assert.equal(SettingsRepo.get('vault_theme_pref'), 'light');
+
   // 2. Query Accounts
+
   const accounts = AccountRepo.getAll();
   assert.ok(accounts.length >= 3, 'Should have at least 3 initial seeded accounts');
   

@@ -69,6 +69,9 @@ export interface ElectronAPI {
   importBackupJson: () => Promise<{ success: boolean; importedCount?: number; error?: string }>;
 
   getDbPath: () => Promise<string>;
+  getSetting: (key: string) => Promise<string | null>;
+  getAllSettings: () => Promise<Record<string, string>>;
+  setSetting: (key: string, value: string) => Promise<boolean>;
 }
 
 declare global {
@@ -76,3 +79,4 @@ declare global {
     electronAPI?: ElectronAPI;
   }
 }
+

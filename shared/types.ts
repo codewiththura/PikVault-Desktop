@@ -77,6 +77,11 @@ export interface ElectronAPI {
 
   // App info / Window
   getDbPath: () => Promise<string>;
+
+  // Settings & Preferences
+  getSetting: (key: string) => Promise<string | null>;
+  getAllSettings: () => Promise<Record<string, string>>;
+  setSetting: (key: string, value: string) => Promise<boolean>;
 }
 
 declare global {
@@ -84,3 +89,4 @@ declare global {
     electronAPI?: ElectronAPI;
   }
 }
+
