@@ -8,7 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      try {
+        var theme = localStorage.getItem('vault_theme_pref') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        var size = localStorage.getItem('vault_fontsize_pref') || 'medium';
+        var pxMap = { small: '11px', medium: '13px', large: '15px', xlarge: '17px' };
+        document.documentElement.style.setProperty('--base-font-size', pxMap[size] || '13px');
+      } catch (e) {}
+    </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

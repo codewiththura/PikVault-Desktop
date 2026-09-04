@@ -23,6 +23,12 @@ const api: ElectronAPI = {
 
   // DB Path
   getDbPath: () => ipcRenderer.invoke('app:getDbPath'),
+
+  // Settings & Preferences
+  getSetting: (key: string) => ipcRenderer.invoke('settings:get', key),
+  getAllSettings: () => ipcRenderer.invoke('settings:getAll'),
+  setSetting: (key: string, value: string) => ipcRenderer.invoke('settings:set', key, value),
 };
+
 
 contextBridge.exposeInMainWorld('electronAPI', api);

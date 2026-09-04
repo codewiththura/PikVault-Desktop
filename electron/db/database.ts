@@ -94,6 +94,12 @@ function createSchema(db: Database): void {
     CREATE INDEX IF NOT EXISTS idx_items_account_id ON stored_items(account_id);
     CREATE INDEX IF NOT EXISTS idx_items_file_name ON stored_items(file_name);
     CREATE INDEX IF NOT EXISTS idx_accounts_username ON accounts(username);
+
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
 }
 
@@ -117,14 +123,26 @@ export function persistDatabase(): void {
  * Seed initial sample accounts if the database is newly initialized
  */
 function seedInitialDataIfEmpty(db: Database): void {
+  const now = new Date().toISOString();
+
+  // Seed default settings if not exists
+  const settingsCountRes = db.exec('SELECT COUNT(*) as cnt FROM app_settings');
+  const settingsCount = settingsCountRes[0]?.values[0]?.[0] as number;
+  if (!settingsCount || settingsCount === 0) {
+    db.run(
+      `INSERT OR IGNORE INTO app_settings (key, value, updated_at) VALUES (?, ?, ?), (?, ?, ?)`,
+      ['vault_fontsize_pref', 'medium', now, 'vault_theme_pref', 'dark', now]
+    );
+  }
+
   const result = db.exec('SELECT COUNT(*) as cnt FROM accounts');
   const count = result[0]?.values[0]?.[0] as number;
   if (count && count > 0) return;
 
-  const now = new Date().toISOString();
   const acc1Id = 'acc-1';
   const acc2Id = 'acc-2';
   const acc3Id = 'acc-3';
+
 
   // Account 1: Mega cloud storage
   db.run(

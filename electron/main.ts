@@ -2,13 +2,23 @@ import { app, BrowserWindow, Menu } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { initDatabase } from './db/database.js';
+import { initDatabase, getIsolatedDataDir } from './db/database.js';
 import { registerIpcHandlers } from './ipc/handlers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Configure application name and isolated persistent user data directory
+app.name = 'account-vault-desktop';
+const dataDir = getIsolatedDataDir();
+const userDataPath = path.join(dataDir, 'user-data');
+if (!fs.existsSync(userDataPath)) {
+  fs.mkdirSync(userDataPath, { recursive: true });
+}
+app.setPath('userData', userDataPath);
+
 let mainWindow: BrowserWindow | null = null;
+
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 

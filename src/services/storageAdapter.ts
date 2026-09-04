@@ -332,7 +332,39 @@ export const browserApiFallback: ElectronAPI = {
   async getDbPath(): Promise<string> {
     return 'Browser LocalStorage (Standalone Isolated)';
   },
+
+  async getSetting(key: string): Promise<string | null> {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+
+  async getAllSettings(): Promise<Record<string, string>> {
+    const settings: Record<string, string> = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('vault_')) {
+          const v = localStorage.getItem(k);
+          if (v !== null) settings[k] = v;
+        }
+      }
+    } catch {}
+    return settings;
+  },
+
+  async setSetting(key: string, value: string): Promise<boolean> {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
+
 
 /**
  * Returns either native Electron API (window.electronAPI) or browser fallback

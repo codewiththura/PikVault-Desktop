@@ -1,6 +1,15 @@
 :root {
-  /* Default Base Font Size */
+  /* Scalable Font Size System */
   --base-font-size: 13px;
+  --font-size-2xs: calc(var(--base-font-size) * 0.72);
+  --font-size-xs: calc(var(--base-font-size) * 0.8);
+  --font-size-sm: calc(var(--base-font-size) * 0.88);
+  --font-size-md: calc(var(--base-font-size) * 0.94);
+  --font-size-base: var(--base-font-size);
+  --font-size-lg: calc(var(--base-font-size) * 1.08);
+  --font-size-xl: calc(var(--base-font-size) * 1.25);
+  --font-size-2xl: calc(var(--base-font-size) * 1.45);
+
 
   /* Strict Monochrome Color Palette (Default: Dark) */
   --bg-primary: #0a0a0a;

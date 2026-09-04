@@ -114,11 +114,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
+  const api = getApi();
+
   const setTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
     try {
       localStorage.setItem('vault_theme_pref', newTheme);
     } catch {}
+    api.setSetting('vault_theme_pref', newTheme).catch(console.error);
   };
 
   const setFontSize = (newSize: FontSizeSetting) => {
@@ -126,6 +129,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('vault_fontsize_pref', newSize);
     } catch {}
+    api.setSetting('vault_fontsize_pref', newSize).catch(console.error);
   };
 
   useEffect(() => {
@@ -146,8 +150,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [dbPath, setDbPath] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const api = getApi();
 
   // Load Accounts
   const loadAccounts = useCallback(async () => {
@@ -172,11 +174,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [api]);
 
-  // Fetch db path & initialize
+  // Fetch db path, restore settings from SQLite & initialize
   useEffect(() => {
     api.getDbPath().then(setDbPath).catch(console.error);
+
+    // Sync settings from persistent SQLite store
+    api.getAllSettings()
+      .then((settings) => {
+        if (settings) {
+          if (settings.vault_fontsize_pref && (settings.vault_fontsize_pref as FontSizeSetting) !== fontSize) {
+            setFontSizeState(settings.vault_fontsize_pref as FontSizeSetting);
+            try {
+              localStorage.setItem('vault_fontsize_pref', settings.vault_fontsize_pref);
+            } catch {}
+          }
+          if (settings.vault_theme_pref && (settings.vault_theme_pref as ThemeMode) !== theme) {
+            setThemeState(settings.vault_theme_pref as ThemeMode);
+            try {
+              localStorage.setItem('vault_theme_pref', settings.vault_theme_pref);
+            } catch {}
+          }
+        }
+      })
+      .catch(console.error);
+
     loadAccounts();
   }, [api, loadAccounts]);
+
 
   // When selected account changes, load items
   useEffect(() => {

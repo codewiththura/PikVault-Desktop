@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../common/Button';
-import { SearchIcon, PlusIcon, ArrowUpDownIcon } from '../common/Icons';
+import { SearchIcon, PlusIcon } from '../common/Icons';
 import { AccountSortField } from '../../types';
 
 interface AccountSortBarProps {

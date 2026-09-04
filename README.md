@@ -79,14 +79,15 @@ Built following **SOLID**, **DRY**, and **KISS** software engineering principles
 │   ├── db/
 │   │   ├── database.ts     # Standalone SQLite manager, schema init & initial seed
 │   │   ├── accountRepo.ts  # Account queries (CRUD, sort, storage aggregations)
-│   │   └── itemRepo.ts     # Stored item queries & cross-account Global Search
+│   │   ├── itemRepo.ts     # Stored item queries & cross-account Global Search
+│   │   └── settingsRepo.ts # Persistent SQLite key-value app settings repository
 │   └── ipc/
-│       └── handlers.ts     # IPC handlers & JSON export/import dialogs
+│       └── handlers.ts     # IPC handlers (Accounts, Items, Settings & JSON dialogs)
 ├── shared/
 │   └── types.ts            # Shared contract types between Electron & React
 ├── src/
 │   ├── styles/
-│   │   ├── theme.css       # Strict monochrome CSS tokens & zero border-radius reset
+│   │   ├── theme.css       # Strict monochrome CSS tokens & responsive font scale system
 │   │   └── global.css      # Desktop typography, buttons, tables, cards, modals
 │   ├── types/
 │   │   └── index.ts        # Client domain models
@@ -96,18 +97,21 @@ Built following **SOLID**, **DRY**, and **KISS** software engineering principles
 │   ├── services/
 │   │   └── storageAdapter.ts # Universal storage adapter (native Electron SQLite + browser fallback)
 │   ├── context/
-│   │   └── AppContext.tsx  # Central state management (accounts, items, search, backups)
+│   │   └── AppContext.tsx  # Central state management (accounts, items, settings sync, search)
 │   ├── components/
 │   │   ├── common/         # Flat primitives: Button, Input, Modal, Badge, Icons, StorageGauge
 │   │   ├── layout/         # AppHeader (stats & global search), StatusBar
 │   │   ├── accounts/       # AccountList, AccountCard, AccountSortBar, AccountModal
 │   │   ├── items/          # ItemList, ItemGrid, ItemCard, ItemFilterBar, ItemModal
+│   │   ├── settings/       # SettingsModal (theme toggle & font size adjustment with live preview)
 │   │   └── search/         # GlobalSearchModal (cross-account Ctrl+K search)
 │   ├── App.tsx             # Master-detail split pane container
 │   └── main.tsx            # React application entry
 ├── tests/
-│   ├── db.test.mjs         # SQLite database & repository automated tests
+│   ├── db.test.mjs         # SQLite database, SettingsRepo & repository automated tests
+│   ├── settings.test.mjs   # Theme and font-size persistence and restart simulation tests
 │   ├── storage-utils.test.mjs # 6 GB quota & unit conversion tests
+│   ├── storage-adapter.test.mjs # Storage adapter web & fallback tests
 │   └── electron-launch.test.mjs # Electron process launch verification test
 ├── package.json
 ├── tsconfig.json
@@ -144,11 +148,19 @@ CREATE TABLE IF NOT EXISTS stored_items (
   FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_items_account_id ON stored_items(account_id);
 CREATE INDEX IF NOT EXISTS idx_items_file_name ON stored_items(file_name);
+CREATE INDEX IF NOT EXISTS idx_accounts_username ON accounts(username);
 ```
 
 ---
+
 
 ## 🛠 Getting Started (Step-by-Step)
 
@@ -216,3 +228,4 @@ The project was constructed following a structured, step-by-step milestone workf
 5. `feat(items): stored data management with dual list/grid views, in-account search, and image preview`
 6. `feat(search): implement cross-account global search, master-detail layout, and hotkey navigation`
 7. `docs: add comprehensive README with architecture, schema, and setup guide`
+8. `fix(app): bind highlightedItemId context state in App.tsx for cross-account jump-to-item highlighting`
