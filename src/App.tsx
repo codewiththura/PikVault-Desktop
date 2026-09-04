@@ -10,6 +10,7 @@ import { ItemList } from './components/items/ItemList';
 import { ItemGrid } from './components/items/ItemGrid';
 import { ItemModal } from './components/items/ItemModal';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
+import { SettingsModal } from './components/settings/SettingsModal';
 import { ImagePreviewModal } from './components/common/ImagePreviewModal';
 import { StorageGauge } from './components/common/StorageGauge';
 import { Account, StoredItem } from './types';
@@ -20,7 +21,8 @@ export const App: React.FC = () => {
     selectedAccount,
     filteredItems,
     itemViewMode,
-    highlightedItemId,
+    isSettingsModalOpen,
+    setIsSettingsModalOpen,
     createAccount,
     updateAccount,
     createItem,
@@ -238,6 +240,11 @@ export const App: React.FC = () => {
       )}
 
       <GlobalSearchModal />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
 
       <ImagePreviewModal
         imageUrl={previewImageUrl}

@@ -1,12 +1,13 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../common/Button';
-import { SearchIcon, DownloadIcon, UploadIcon, HardDriveIcon } from '../common/Icons';
+import { SearchIcon, DownloadIcon, UploadIcon, SettingsIcon } from '../common/Icons';
 
 export const AppHeader: React.FC = () => {
   const {
     accounts,
     setIsGlobalSearchOpen,
+    setIsSettingsModalOpen,
     exportBackup,
     importBackup,
     setError,
@@ -164,6 +165,16 @@ export const AppHeader: React.FC = () => {
           title="Import database records from JSON backup"
         >
           Import
+        </Button>
+
+        <Button
+          size="sm"
+          variant="secondary"
+          icon={<SettingsIcon size={13} />}
+          onClick={() => setIsSettingsModalOpen(true)}
+          title="Adjust Theme and Font Size Settings"
+        >
+          Settings
         </Button>
       </div>
     </header>
