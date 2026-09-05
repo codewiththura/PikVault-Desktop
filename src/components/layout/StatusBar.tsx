@@ -14,16 +14,14 @@ export const StatusBar: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 12px',
-        fontSize: '11px',
-        fontFamily: 'var(--font-mono)',
         color: 'var(--text-muted)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span>STANDALONE ISOLATED DB</span>
+        <span>Standalone Isolated DB</span>
         {dbPath && (
           <span style={{ color: 'var(--text-secondary)' }}>
-            PATH: {dbPath}
+            Path: {dbPath}
           </span>
         )}
       </div>
@@ -31,12 +29,13 @@ export const StatusBar: React.FC = () => {
       <div>
         {selectedAccount ? (
           <span>
-            ACTIVE: <strong>{selectedAccount.username}</strong> ({activeItems.length} items)
+            Active: <strong>{selectedAccount.username}</strong> ({activeItems.length} items)
           </span>
         ) : (
-          <span>NO ACCOUNT SELECTED</span>
+          <span>No account selected</span>
         )}
       </div>
     </footer>
+
   );
 };

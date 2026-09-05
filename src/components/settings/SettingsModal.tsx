@@ -37,7 +37,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         {/* 1. Theme Selection */}
         <div>
           <label className="form-label" style={{ marginBottom: '8px', display: 'block' }}>
-            APPEARANCE THEME
+            Appearance Theme
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <button
@@ -46,18 +46,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 padding: '12px',
                 background: theme === 'dark' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
                 border: theme === 'dark' ? '2px solid var(--accent-white)' : '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
                 color: 'var(--text-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '12px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <MoonIcon size={16} />
-                <span>DARK MODE</span>
+                <span>Dark Mode</span>
               </div>
               {theme === 'dark' && <CheckIcon size={14} />}
             </button>
@@ -68,18 +67,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 padding: '12px',
                 background: theme === 'light' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
                 border: theme === 'light' ? '2px solid var(--accent-white)' : '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
                 color: 'var(--text-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '12px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <SunIcon size={16} />
-                <span>LIGHT MODE</span>
+                <span>Light Mode</span>
               </div>
               {theme === 'light' && <CheckIcon size={14} />}
             </button>
@@ -89,7 +87,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         {/* 2. Font Size Adjustment */}
         <div>
           <label className="form-label" style={{ marginBottom: '8px', display: 'block' }}>
-            TYPOGRAPHY FONT SIZE
+            Base Font Size
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {FONT_SIZE_OPTIONS.map((opt) => {
@@ -103,12 +101,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     background: isSelected ? 'var(--accent-white)' : 'var(--bg-primary)',
                     color: isSelected ? 'var(--accent-black)' : 'var(--text-primary)',
                     border: '1px solid var(--border-strong)',
+                    borderRadius: 'var(--radius-sm)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
                   }}
                 >
                   <span>{opt.label}</span>
@@ -125,12 +122,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             padding: '12px',
             background: 'var(--bg-primary)',
             border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
             display: 'flex',
             flexDirection: 'column',
             gap: '6px',
           }}
         >
-          <span className="form-label" style={{ fontSize: '10px' }}>LIVE PREVIEW</span>
+          <span className="form-label">Live Preview</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontWeight: 700 }}>Account & Storage Catalog</span>
             <Badge variant="white">MP4</Badge>
@@ -141,5 +139,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         </div>
       </div>
     </Modal>
+
   );
 };

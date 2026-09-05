@@ -24,14 +24,13 @@ export const ItemGrid: React.FC<ItemGridProps> = ({
           padding: '48px 16px',
           textAlign: 'center',
           color: 'var(--text-muted)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '12px',
         }}
       >
-        NO STORED DATA ITEMS IN THIS ACCOUNT
+        No stored data items in this account
       </div>
     );
   }
+
 
   return (
     <div

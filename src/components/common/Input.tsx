@@ -48,8 +48,9 @@ export const Input: React.FC<InputProps> = ({
           </span>
         )}
       </div>
-      {error && <span style={{ color: 'var(--accent-danger)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{error}</span>}
+      {error && <span style={{ color: 'var(--accent-danger)' }}>{error}</span>}
       {hint && !error && <span className="form-hint">{hint}</span>}
     </div>
   );
 };
+

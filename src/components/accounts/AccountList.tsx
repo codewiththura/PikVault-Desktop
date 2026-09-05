@@ -22,12 +22,11 @@ export const AccountList: React.FC<AccountListProps> = ({ onEditAccount }) => {
           padding: '32px 16px',
           textAlign: 'center',
           color: 'var(--text-muted)',
-          fontSize: '12px',
-          fontFamily: 'var(--font-mono)',
         }}
       >
-        NO ACCOUNTS FOUND
+        No accounts found
       </div>
+
     );
   }
 

@@ -53,9 +53,9 @@ export const GlobalSearchModal: React.FC = () => {
           type="text"
           value={globalSearchQuery}
           onChange={(e) => performGlobalSearch(e.target.value)}
-          placeholder="Search file name or note across ALL accounts..."
+          placeholder="Search file name or note across all accounts..."
           className="form-input"
-          style={{ paddingLeft: '34px', fontSize: '13px', paddingRight: '10px' }}
+          style={{ paddingLeft: '34px', paddingRight: '10px' }}
         />
       </div>
 
@@ -65,8 +65,6 @@ export const GlobalSearchModal: React.FC = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          fontSize: '11px',
-          fontFamily: 'var(--font-mono)',
           color: 'var(--text-muted)',
           marginBottom: '8px',
           borderBottom: '1px solid var(--border-subtle)',
@@ -75,10 +73,10 @@ export const GlobalSearchModal: React.FC = () => {
       >
         <span>
           {globalSearchQuery
-            ? `FOUND ${globalSearchResults.length} RESULTS ACROSS ACCOUNTS`
-            : 'TYPE TO SEARCH ACROSS ALL ACCOUNTS'}
+            ? `Found ${globalSearchResults.length} results across accounts`
+            : 'Type to search across all accounts'}
         </span>
-        <span>HOTKEY: CTRL+K</span>
+        <span>Hotkey: Ctrl+K</span>
       </div>
 
       {/* Results List */}
@@ -89,11 +87,9 @@ export const GlobalSearchModal: React.FC = () => {
               padding: '36px 0',
               textAlign: 'center',
               color: 'var(--text-muted)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '12px',
             }}
           >
-            NO MATCHING STORED DATA FOUND IN ANY ACCOUNT
+            No matching stored data found in any account
           </div>
         )}
 
@@ -106,6 +102,7 @@ export const GlobalSearchModal: React.FC = () => {
               style={{
                 background: 'var(--bg-primary)',
                 border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
                 padding: '10px 12px',
                 cursor: 'pointer',
                 display: 'flex',
@@ -120,7 +117,6 @@ export const GlobalSearchModal: React.FC = () => {
                   <span
                     style={{
                       fontWeight: 600,
-                      fontSize: '13px',
                       color: 'var(--text-primary)',
                       wordBreak: 'break-all',
                     }}
@@ -128,15 +124,15 @@ export const GlobalSearchModal: React.FC = () => {
                     {item.fileName}
                   </span>
                   <Badge variant="white">{item.fileType || 'mp4'}</Badge>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>
                     {formatMB(item.fileSizeMB)}
                   </span>
                 </div>
 
                 {/* Account Owner Indicator */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>STORED IN ACCOUNT:</span>
-                  <span style={{ color: 'var(--accent-white)', fontWeight: 600, background: 'var(--bg-secondary)', padding: '1px 6px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Stored in account:</span>
+                  <span style={{ color: 'var(--accent-white)', fontWeight: 600, background: 'var(--bg-secondary)', padding: '1px 6px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xs)' }}>
                     {account.username}
                   </span>
                   {item.updatedDate && (
@@ -147,7 +143,7 @@ export const GlobalSearchModal: React.FC = () => {
                 </div>
 
                 {item.note && (
-                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '500px' }}>
+                  <span style={{ color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '500px' }}>
                     Note: {item.note}
                   </span>
                 )}
@@ -159,8 +155,6 @@ export const GlobalSearchModal: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '11px',
                   color: 'var(--text-secondary)',
                   paddingLeft: '12px',
                   whiteSpace: 'nowrap',
@@ -173,6 +167,7 @@ export const GlobalSearchModal: React.FC = () => {
           );
         })}
       </div>
+
     </Modal>
   );
 };

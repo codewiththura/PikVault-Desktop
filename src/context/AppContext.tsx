@@ -143,7 +143,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       large: '15px',
       xlarge: '17px',
     };
-    document.documentElement.style.setProperty('--base-font-size', pxMap[fontSize] || '13px');
+    const targetPx = pxMap[fontSize] || '13px';
+    document.documentElement.style.setProperty('--base-font-size', targetPx);
+    document.documentElement.style.fontSize = targetPx;
+    document.body.style.fontSize = targetPx;
   }, [fontSize]);
 
   // App Meta

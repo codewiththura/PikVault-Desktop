@@ -128,8 +128,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 background: 'transparent',
                 border: 'none',
                 color: 'var(--text-secondary)',
-                fontSize: '10px',
-                fontFamily: 'var(--font-mono)',
                 cursor: 'pointer',
                 textDecoration: 'underline',
               }}
@@ -166,7 +164,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         </div>
 
         <div className="form-group">
-          <label className="form-label">Last Login (LL)</label>
+          <label className="form-label">Last Login</label>
           <input
             type="datetime-local"
             value={lastLogin}
@@ -176,7 +174,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         </div>
 
         <div className="form-group">
-          <label className="form-label">Storage Amount Max (GB)</label>
+          <label className="form-label">Max Storage (GB)</label>
           <input
             type="number"
             value={maxStorageGB}
@@ -190,11 +188,12 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         </div>
 
         {error && (
-          <div style={{ color: 'var(--accent-danger)', fontSize: '11px', fontFamily: 'var(--font-mono)', marginTop: '8px' }}>
+          <div style={{ color: 'var(--accent-danger)', marginTop: '8px' }}>
             {error}
           </div>
         )}
       </form>
     </Modal>
+
   );
 };

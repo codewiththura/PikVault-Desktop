@@ -35,18 +35,17 @@ export const StorageGauge: React.FC<StorageGaugeProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          fontSize: compact ? '11px' : '12px',
-          fontFamily: 'var(--font-mono)',
           marginBottom: '4px',
         }}
       >
         <span style={{ color: isExceeded ? 'var(--accent-danger)' : 'var(--text-primary)', fontWeight: 600 }}>
-          {isExceeded ? 'QUOTA EXCEEDED' : `${remainingGB} GB REMAIN`}
+          {isExceeded ? 'Quota exceeded' : `${remainingGB} GB remain`}
         </span>
         <span style={{ color: 'var(--text-muted)' }}>
           {formatMB(totalUsedMB)} / {maxStorageGB} GB
         </span>
       </div>
+
 
       {/* Flat Monochrome Progress Gauge */}
       <div
@@ -55,6 +54,7 @@ export const StorageGauge: React.FC<StorageGaugeProps> = ({
           height: compact ? '4px' : '8px',
           background: 'var(--bg-primary)',
           border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-full)',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -63,6 +63,7 @@ export const StorageGauge: React.FC<StorageGaugeProps> = ({
           style={{
             height: '100%',
             width: `${Math.min(100, usedPercent)}%`,
+            borderRadius: 'var(--radius-full)',
             background: isExceeded 
               ? 'var(--accent-danger)' 
               : usedPercent > 80 
