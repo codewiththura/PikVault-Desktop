@@ -6,23 +6,29 @@ The application serves as a high-density, high-contrast account ledger and stora
 
 ---
 
-## 📸 Design Philosophy: Strict Flat Black & White (No Rounded Corners)
+## 📸 Design System & Palette: Modern Desktop Theme
 
-Adhering strictly to a native desktop aesthetic:
-- **Zero Border Radius (`border-radius: 0px !important`)**: Completely sharp, rectangular geometry for all dialogs, buttons, cards, tags, badges, and progress indicators.
-- **Monochrome Palette**: High-contrast pure black (`#000000`), canvas dark (`#050505`, `#0a0a0a`, `#141414`), crisp borders (`#262626`, `#404040`), and pure white (`#ffffff`).
-- **Desktop Typography**: Optimized pairing of **Space Grotesk** for clean interface labels and **JetBrains Mono** for timestamps, capacities, quotas, and hash/path identifiers.
+The application features a sleek design system supporting Dark and Light appearance modes:
+- **Scalable Radius System**: Modern border-radius tokens (`--radius-xs: 3px`, `--radius-sm: 4px`, `--radius-md: 6px`, `--radius-lg: 8px`, `--radius-full: 9999px`) applied cleanly to buttons, inputs, cards, badges, modal dialogs, and gauges.
+- **Rich Color Palette**:
+  - **Primary & Accent**: Warm Terracotta / Rust (`#c23c10`, `#cb5332`, `#d3684b`, `#da7c61`, `#e18f78`, `#e8a28e`).
+  - **Dark Surfaces**: Rich deep darks (`#121212`, `#252525`, `#393939`, `#4f4f4f`) with warm tonal surfaces (`#221715`, `#352a28`).
+  - **Light Surfaces**: Clean warm tones (`#ffffff`, `#f8f6f4`, `#f3ede7`, `#e8ded5`).
+  - **Semantic Accents**: Success (`#52ff52`), Warning (`#ffde38`), Danger (`#ff3030`), Info (`#3db5ff`).
+- **Unified Clean Typography**: Modern single font family (**Space Grotesk** and system sans fallback) used consistently across the entire application with scalable font sizing presets.
+- **Natural Text Styling**: Title and sentence casing across buttons, dialogs, headers, and badges.
 
 ---
 
 ## 🚀 Key Features
 
 ### 1. Account Records Ledger
-- **Credentials & Metadata**: Tracks Username (email), Password (with 1-click clipboard copy and masked/unmasked toggle), and Last Login (LL) timestamp.
+- **Credentials & Metadata**: Tracks Username (email), Password (with 1-click clipboard copy and masked/unmasked toggle), and Last Login timestamp.
+- **Relative Last Login & Overdue Alerts**: Displays Last Login in human-friendly relative format (e.g. `Just now`, `20 days ago`, `1 month ago`, `2 years ago`). If an account has not been logged into for more than 1 month (>= 30 days), the label turns red (`var(--accent-danger)`) with a high-contrast `Relogin` badge alerting the user to re-authenticate.
 - **Auto Password Generator**: Integrated cryptographic random password generator.
 - **Sorting & Filtering**:
   - Instant search by account name or email.
-  - Multi-directional sorting by **Name** (`asc`/`desc`), **Last Login** (`LL`), and **Storage Remaining**.
+  - Multi-directional sorting by **Name** (`asc`/`desc`), **Last login**, and **Storage Remaining**.
 
 ### 2. Plain Text Storage Catalog (6 GB Quota Engine)
 - **Metadata-Only Architecture**: The application does **not** store heavy multi-gigabyte media on the local physical disk. It stores structured plain-text catalog records.
@@ -47,8 +53,8 @@ Adhering strictly to a native desktop aesthetic:
 - **In-Account Search**: Instant local filter by file name or notes within the active account.
 
 ### 4. 🔍 Special Feature: Cross-Account Global Search (`Ctrl+K`)
-- Allows users to search for stored data file names across **ALL accounts simultaneously**.
-- Immediately reveals **which account owns each data item** (`STORED IN ACCOUNT: user@example.com`).
+- Allows users to search for stored data file names across **all accounts simultaneously**.
+- Immediately reveals **which account owns each data item** (`Stored in account: user@example.com`).
 - Provides a **1-click "Jump" action** that navigates directly into the target account and highlights the matching item.
 - Accessible from anywhere in the app via the top header or the `Ctrl+K` hotkey.
 
@@ -63,7 +69,8 @@ Adhering strictly to a native desktop aesthetic:
 ### 6. ⚙️ Theme Toggle & Dynamic Font Size Customization
 - **Dark & Light Mode**: Switch between High-Contrast Dark Monochrome and Clean High-Contrast Light Monochrome themes.
 - **Adjustable Font Size**: Choose between `Small (11px)`, `Medium (13px - Default)`, `Large (15px)`, and `X-Large (17px)` with real-time live preview.
-- **Persistent Preferences**: Preferences are saved and automatically restored across app restarts.
+- **Persistent Preferences**: Preferences are saved and automatically restored across app restarts via SQLite `app_settings` storage.
+
 
 ---
 

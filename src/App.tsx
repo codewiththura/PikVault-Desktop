@@ -14,7 +14,11 @@ import { SettingsModal } from "./components/settings/SettingsModal";
 import { ImagePreviewModal } from "./components/common/ImagePreviewModal";
 import { StorageGauge } from "./components/common/StorageGauge";
 import { Account, StoredItem } from "./types";
-import { formatDateTime } from "./utils/date";
+import {
+  formatDateTime,
+  formatRelativeTime,
+  isOlderThanDays,
+} from "./utils/date";
 
 export const App: React.FC = () => {
   const {
@@ -98,7 +102,6 @@ export const App: React.FC = () => {
           style={{
             width: "var(--sidebar-width)",
             minWidth: "280px",
-            maxWidth: "380px",
             borderRight: "1px solid var(--border-strong)",
             background: "var(--bg-primary)",
             display: "flex",
@@ -149,34 +152,35 @@ export const App: React.FC = () => {
                       gap: "8px",
                     }}
                   >
-                    <span
+                    <span style={{ color: "var(--text-muted)" }}>Account:</span>
+                    <h3
                       style={{
-                        fontSize: "11px",
-                        fontFamily: "var(--font-mono)",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      ACCOUNT:
-                    </span>
-                    <h2
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 700,
                         color: "var(--text-primary)",
                         margin: 0,
                       }}
                     >
                       {selectedAccount.username}
-                    </h2>
+                    </h3>
                   </div>
                   <span
                     style={{
-                      fontSize: "11px",
-                      fontFamily: "var(--font-mono)",
-                      color: "var(--text-secondary)",
+                      color: isOlderThanDays(selectedAccount.lastLogin, 30)
+                        ? "var(--accent-danger)"
+                        : "var(--text-secondary)",
+                      fontSize: "var(--font-size-xs)",
+                      fontWeight: isOlderThanDays(selectedAccount.lastLogin, 30)
+                        ? 600
+                        : 400,
                     }}
+                    title={
+                      selectedAccount.lastLogin
+                        ? `Exact timestamp: ${formatDateTime(selectedAccount.lastLogin)}`
+                        : undefined
+                    }
                   >
-                    Last Login: {formatDateTime(selectedAccount.lastLogin)}
+                    Last login: {formatRelativeTime(selectedAccount.lastLogin)}
+                    {isOlderThanDays(selectedAccount.lastLogin, 30) &&
+                      " (Relogin required)"}
                   </span>
                 </div>
 
@@ -238,25 +242,18 @@ export const App: React.FC = () => {
                   width: "40px",
                   height: "40px",
                   border: "1px solid var(--border-strong)",
+                  borderRadius: "var(--radius-md)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "18px",
                 }}
               >
                 //
               </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "13px",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                SELECT AN ACCOUNT TO VIEW STORED RECORDS
+              <p style={{ color: "var(--text-secondary)" }}>
+                Select an account to view stored records
               </p>
-              <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+              <span style={{ color: "var(--text-muted)" }}>
                 Or press Ctrl+K to search stored records globally across all
                 accounts
               </span>

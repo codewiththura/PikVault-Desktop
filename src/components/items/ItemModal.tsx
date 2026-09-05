@@ -192,6 +192,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
                 height: '80px',
                 background: 'var(--bg-primary)',
                 border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-sm)',
                 overflow: 'hidden',
                 display: 'flex',
                 alignItems: 'center',
@@ -246,11 +247,12 @@ export const ItemModal: React.FC<ItemModalProps> = ({
         </div>
 
         {error && (
-          <div style={{ color: 'var(--accent-danger)', fontSize: '11px', fontFamily: 'var(--font-mono)', marginTop: '8px' }}>
+          <div style={{ color: 'var(--accent-danger)', marginTop: '8px' }}>
             {error}
           </div>
         )}
       </form>
     </Modal>
+
   );
 };

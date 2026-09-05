@@ -10,35 +10,99 @@
   --font-size-xl: calc(var(--base-font-size) * 1.25);
   --font-size-2xl: calc(var(--base-font-size) * 1.45);
 
+  /* Modern Radius System */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
 
-  /* Strict Monochrome Color Palette (Default: Dark) */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #141414;
-  --bg-tertiary: #1f1f1f;
-  --bg-elevated: #262626;
-  --bg-canvas: #050505;
+  /** Base text colors */
+  --cffy-theme-light-a0: #ffffff;
+  --cffy-theme-dark-a0: #000000;
 
-  --text-primary: #ffffff;
-  --text-secondary: #a3a3a3;
-  --text-muted: #737373;
-  --text-inverse: #000000;
+  /** Theme primary colors */
+  --cffy-theme-primary-a0: #c23c10;
+  --cffy-theme-primary-a10: #cb5332;
+  --cffy-theme-primary-a20: #d3684b;
+  --cffy-theme-primary-a30: #da7c61;
+  --cffy-theme-primary-a40: #e18f78;
+  --cffy-theme-primary-a50: #e8a28e;
 
-  --border-subtle: #262626;
-  --border-strong: #404040;
-  --border-accent: #ffffff;
+  /** Theme surface colors */
+  --cffy-theme-surface-a0: #121212;
+  --cffy-theme-surface-a10: #252525;
+  --cffy-theme-surface-a20: #393939;
+  --cffy-theme-surface-a30: #4f4f4f;
+  --cffy-theme-surface-a40: #666666;
+  --cffy-theme-surface-a50: #7d7d7d;
 
-  --accent-white: #ffffff;
-  --accent-black: #000000;
-  --accent-danger: #ff4d4f;
-  --accent-warning: #faad14;
+  /** Theme tonal surface colors */
+  --cffy-theme-surface-tonal-a0: #221715;
+  --cffy-theme-surface-tonal-a10: #352a28;
+  --cffy-theme-surface-tonal-a20: #483e3c;
+  --cffy-theme-surface-tonal-a30: #5d5352;
+  --cffy-theme-surface-tonal-a40: #726a68;
+  --cffy-theme-surface-tonal-a50: #888180;
 
-  /* Fonts */
-  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  /** Success colors */
+  --cffy-theme-success-a0: #52ff52;
+  --cffy-theme-success-a10: #83ff7f;
+  --cffy-theme-success-a20: #a7ffa2;
+
+  /** Warning colors */
+  --cffy-theme-warning-a0: #ffde38;
+  --cffy-theme-warning-a10: #ffe572;
+  --cffy-theme-warning-a20: #ffed9b;
+
+  /** Danger colors */
+  --cffy-theme-danger-a0: #ff3030;
+  --cffy-theme-danger-a10: #ff6a5e;
+  --cffy-theme-danger-a20: #ff9387;
+
+  /** Info colors */
+  --cffy-theme-info-a0: #3db5ff;
+  --cffy-theme-info-a10: #6fc5ff;
+  --cffy-theme-info-a20: #96d4ff;
+
+  /* Default Dark Mode Semantic Mapping */
+  --bg-canvas: #0c0c0c;
+  --bg-primary: var(--cffy-theme-surface-a0);
+  --bg-secondary: var(--cffy-theme-surface-a10);
+  --bg-tertiary: var(--cffy-theme-surface-a20);
+  --bg-elevated: var(--cffy-theme-surface-tonal-a10);
+  --bg-tonal: var(--cffy-theme-surface-tonal-a0);
+
+  --text-primary: var(--cffy-theme-light-a0);
+  --text-secondary: #c5beba;
+  --text-muted: #888180;
+  --text-inverse: var(--cffy-theme-dark-a0);
+
+  --border-subtle: var(--cffy-theme-surface-a20);
+  --border-strong: var(--cffy-theme-surface-a30);
+  --border-accent: var(--cffy-theme-primary-a0);
+
+  --accent-white: var(--cffy-theme-primary-a0);
+  --accent-black: #ffffff;
+  --accent-white-hover: var(--cffy-theme-primary-a10);
+  --accent-white-hover-border: var(--cffy-theme-primary-a20);
+  --accent-danger: var(--cffy-theme-danger-a0);
+  --accent-danger-hover: var(--cffy-theme-danger-a10);
+  --accent-warning: var(--cffy-theme-warning-a0);
+  --accent-success: var(--cffy-theme-success-a0);
+  --accent-info: var(--cffy-theme-info-a0);
+
+  /* Unified App-wide Typography */
+  --font-family:
+    "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-sans: var(--font-family);
+  --font-mono: var(--font-family);
 
   /* Layout dimensions */
-  --header-height: 52px;
-  --sidebar-width: 320px;
+  --header-height: 60px;
+  --sidebar-width: 450px;
   --statusbar-height: 28px;
 
   /* Animation */
@@ -47,36 +111,44 @@
 
 /* Light Theme Override */
 [data-theme="light"] {
-  --bg-canvas: #f4f4f6;
+  --bg-canvas: #f8f6f4;
   --bg-primary: #ffffff;
-  --bg-secondary: #f0f0f3;
-  --bg-tertiary: #e4e4e7;
-  --bg-elevated: #d4d4d8;
+  --bg-secondary: #f3ede7;
+  --bg-tertiary: #e8ded5;
+  --bg-elevated: #dcd0c4;
+  --bg-tonal: #faece6;
 
-  --text-primary: #09090b;
-  --text-secondary: #52525b;
-  --text-muted: #71717a;
+  --text-primary: #171211;
+  --text-secondary: #5d5352;
+  --text-muted: #888180;
   --text-inverse: #ffffff;
 
-  --border-subtle: #e4e4e7;
-  --border-strong: #a1a1aa;
-  --border-accent: #09090b;
+  --border-subtle: #e5ded7;
+  --border-strong: #c8bbb0;
+  --border-accent: var(--cffy-theme-primary-a0);
 
-  --accent-white: #09090b;
+  --accent-white: var(--cffy-theme-primary-a0);
   --accent-black: #ffffff;
-  --accent-danger: #d92729;
-  --accent-warning: #d97706;
+  --accent-white-hover: var(--cffy-theme-primary-a10);
+  --accent-white-hover-border: var(--cffy-theme-primary-a20);
+  --accent-danger: #e02828;
+  --accent-danger-hover: #c41e1e;
+  --accent-warning: #c28800;
+  --accent-success: #15803d;
+  --accent-info: #0284c7;
 }
 
-/* Strict Zero Border-Radius Override */
-*, *::before, *::after {
+/* Universal Base Box-Sizing Reset */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  border-radius: 0 !important;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   background-color: var(--bg-canvas);
@@ -94,6 +166,23 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  font-size: var(--base-font-size, 13px);
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+table,
+th,
+td {
+  font-size: inherit;
 }
 
 /* Flat Monochromatic Scrollbars */
@@ -108,6 +197,7 @@ html, body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -116,6 +206,6 @@ html, body {
 
 /* Focus Outlines */
 :focus-visible {
-  outline: 2px solid var(--accent-white);
+  outline: 2px solid var(--border-accent);
   outline-offset: 1px;
 }
