@@ -180,7 +180,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         return (
           <div
             style={{
-              color: !isOverdue ? "var(--accent-danger)" : "var(--text-muted)",
+              color: isOverdue ? "var(--accent-danger)" : "var(--text-muted)",
               marginBottom: "10px",
               display: "flex",
               justifyContent: "space-between",
