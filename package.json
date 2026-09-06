@@ -10,8 +10,39 @@
     "build:electron": "tsc -p tsconfig.electron.json",
     "build:react": "vite build",
     "build": "npm run build:electron && npm run build:react",
+    "build:standalone": "npm run build && electron-builder --linux dir && node ./scripts/post-standalone.mjs",
+    "build:archive": "npm run build && electron-builder --linux tar.gz",
+    "build:appimage": "npm run build && electron-builder --linux AppImage",
+    "build:all": "npm run build && electron-builder --linux AppImage dir tar.gz",
     "start": "electron --no-sandbox .",
-    "test": "node --test tests/**/*.test.mjs"
+    "test": "node --test tests/**/*.test.mjs",
+    "package": "npm run build && electron-builder --linux AppImage dir"
+  },
+  "build": {
+    "appId": "com.cwt.accountvaultdesktop",
+    "productName": "PikVault",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.wasm"
+    ],
+    "linux": {
+      "executableName": "PikVault",
+      "target": [
+        "AppImage",
+        "dir",
+        "tar.gz"
+      ],
+      "category": "Utility",
+      "icon": "public/android-chrome-512x512.png"
+    }
   },
   "keywords": [
     "electron",
@@ -35,6 +66,7 @@
     "@types/sql.js": "^1.4.9",
     "@vitejs/plugin-react": "^4.3.4",
     "electron": "^34.2.0",
+    "electron-builder": "^26.15.3",
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
   }

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '../common/Modal';
-import { Input } from '../common/Input';
-import { Button } from '../common/Button';
-import { Account } from '../../types';
-import { EyeIcon, EyeOffIcon } from '../common/Icons';
+import React, { useState, useEffect } from "react";
+import { Modal } from "../common/Modal";
+import { Input } from "../common/Input";
+import { Button } from "../common/Button";
+import { Account } from "../../types";
+import { EyeIcon, EyeOffIcon } from "../common/Icons";
 
 interface AccountModalProps {
   isOpen: boolean;
@@ -24,12 +24,12 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   onSave,
   accountToEdit,
 }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [lastLogin, setLastLogin] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [lastLogin, setLastLogin] = useState("");
   const [maxStorageGB, setMaxStorageGB] = useState(6);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -45,23 +45,23 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       }
       setMaxStorageGB(accountToEdit.maxStorageGB || 6);
     } else {
-      setUsername('');
-      setPassword('');
+      setUsername("");
+      setPassword("");
       setLastLogin(new Date().toISOString().slice(0, 16));
       setMaxStorageGB(6);
     }
-    setError('');
+    setError("");
     setShowPassword(false);
   }, [accountToEdit, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim()) {
-      setError('Username / Email is required');
+      setError("Username / Email is required");
       return;
     }
     if (!password.trim()) {
-      setError('Password is required');
+      setError("Password is required");
       return;
     }
 
@@ -76,34 +76,45 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       });
       onClose();
     } catch (err: any) {
-      setError(err?.message || 'Failed to save account');
+      setError(err?.message || "Failed to save account");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const generatePassword = () => {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
-    let res = '';
-    for (let i = 0; i < 14; i++) {
-      res += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setPassword(res);
-    setShowPassword(true);
-  };
+  // const generatePassword = () => {
+  //   const chars =
+  //     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+  //   let res = "";
+  //   for (let i = 0; i < 14; i++) {
+  //     res += chars.charAt(Math.floor(Math.random() * chars.length));
+  //   }
+  //   setPassword(res);
+  //   setShowPassword(true);
+  // };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={accountToEdit ? 'Edit Account Record' : 'Create New Account Record'}
+      title={
+        accountToEdit ? "Edit Account Record" : "Create New Account Record"
+      }
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : accountToEdit ? 'Update Account' : 'Create Account'}
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? "Saving..."
+              : accountToEdit
+                ? "Update Account"
+                : "Create Account"}
           </Button>
         </>
       }
@@ -119,9 +130,15 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         />
 
         <div className="form-group">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <label className="form-label">Password *</label>
-            <button
+            {/* <button
               type="button"
               onClick={generatePassword}
               style={{
@@ -133,29 +150,35 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               }}
             >
               Auto-generate
-            </button>
+            </button> */}
           </div>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Account password"
               className="form-input"
-              style={{ paddingRight: '36px' }}
+              style={{ paddingRight: "36px" }}
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               style={{
-                position: 'absolute',
-                right: '8px',
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                display: 'flex',
+                position: "absolute",
+                right: "8px",
+                background: "transparent",
+                border: "none",
+                color: "var(--text-muted)",
+                cursor: "pointer",
+                display: "flex",
               }}
             >
               {showPassword ? <EyeOffIcon size={14} /> : <EyeIcon size={14} />}
@@ -184,16 +207,18 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             min="1"
             required
           />
-          <span className="form-hint">Default is 6 GB per account. Stored items size is tracked against this limit.</span>
+          <span className="form-hint">
+            Default is 6 GB per account. Stored items size is tracked against
+            this limit.
+          </span>
         </div>
 
         {error && (
-          <div style={{ color: 'var(--accent-danger)', marginTop: '8px' }}>
+          <div style={{ color: "var(--accent-danger)", marginTop: "8px" }}>
             {error}
           </div>
         )}
       </form>
     </Modal>
-
   );
 };
