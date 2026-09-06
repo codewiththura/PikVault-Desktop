@@ -30,20 +30,36 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   onDelete,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState({ password: false, username: false });
 
   const handleCopyPassword = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(account.password);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setCopied((prev) => {
+      return { ...prev, password: true };
+    });
+    setTimeout(
+      () =>
+        setCopied((prev) => {
+          return { ...prev, password: false };
+        }),
+      1500,
+    );
   };
 
   const handleCopyUsername = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(account.username);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setCopied((prev) => {
+      return { ...prev, username: true };
+    });
+    setTimeout(
+      () =>
+        setCopied((prev) => {
+          return { ...prev, password: false };
+        }),
+      1500,
+    );
   };
 
   const handleTogglePassword = (e: React.MouseEvent) => {
@@ -120,7 +136,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
               display: "flex",
             }}
           >
-            {copied ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
+            {copied.username ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
           </button>
         </div>
         <span
@@ -177,7 +193,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             display: "flex",
           }}
         >
-          {copied ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
+          {copied.password ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
         </button>
       </div>
 
