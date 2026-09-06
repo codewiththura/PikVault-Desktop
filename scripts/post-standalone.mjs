@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,24 +15,43 @@ if (!fs.existsSync(sourceDir)) {
   process.exit(1);
 }
 
-// 2. Sync unpacked files to distribution folder
+// 2. Safely preserve existing user data across rebuilds
+const targetDataDir = path.join(targetDir, 'data');
+const sourceDataDir = path.join(sourceDir, 'data');
+const backupDataDir = path.join(os.tmpdir(), `pikvault-data-backup-${Date.now()}`);
+let hasExistingData = false;
+
+if (fs.existsSync(targetDataDir)) {
+  console.log(`[Post-Build] Preserving existing user data from ${targetDataDir}...`);
+  fs.cpSync(targetDataDir, backupDataDir, { recursive: true });
+  hasExistingData = true;
+} else if (fs.existsSync(sourceDataDir)) {
+  console.log(`[Post-Build] Preserving existing user data from ${sourceDataDir}...`);
+  fs.cpSync(sourceDataDir, backupDataDir, { recursive: true });
+  hasExistingData = true;
+}
+
+// 3. Sync unpacked files to distribution folder
 console.log(`[Post-Build] Syncing standalone distribution to ${targetDir}...`);
 if (fs.existsSync(targetDir)) {
   fs.rmSync(targetDir, { recursive: true, force: true });
 }
 fs.cpSync(sourceDir, targetDir, { recursive: true });
 
-// 3. Remove any temporary runtime test data
-const tempTestData = path.join(targetDir, 'data');
-if (fs.existsSync(tempTestData)) {
-  fs.rmSync(tempTestData, { recursive: true, force: true });
+// 4. Restore preserved user data so user entries are NEVER lost
+if (hasExistingData && fs.existsSync(backupDataDir)) {
+  console.log(`[Post-Build] Restoring preserved user data to ${targetDataDir}...`);
+  fs.cpSync(backupDataDir, targetDataDir, { recursive: true });
+  try {
+    fs.rmSync(backupDataDir, { recursive: true, force: true });
+  } catch {}
 }
 
-// 4. Ensure .portable marker file exists
+// 5. Ensure .portable marker file exists
 const portableFile = path.join(targetDir, '.portable');
 fs.writeFileSync(portableFile, '');
 
-// 5. Create start.sh convenience launcher script
+// 6. Create start.sh convenience launcher script
 const startSh = path.join(targetDir, 'start.sh');
 fs.writeFileSync(
   startSh,
@@ -57,7 +77,7 @@ try {
   fs.chmodSync(startSh, 0o755);
 } catch {}
 
-// 6. Ensure native ELF binary has execution permission
+// 7. Ensure native ELF binary has execution permission
 const binaryPath = path.join(targetDir, 'PikVault');
 if (fs.existsSync(binaryPath)) {
   try {
@@ -65,14 +85,14 @@ if (fs.existsSync(binaryPath)) {
   } catch {}
 }
 
-// 7. Copy application icon
+// 8. Copy application icon
 const iconSrc = path.join(rootDir, 'public', 'android-chrome-512x512.png');
 const iconDst = path.join(targetDir, 'icon.png');
 if (fs.existsSync(iconSrc)) {
   fs.copyFileSync(iconSrc, iconDst);
 }
 
-// 8. Create PikVault.desktop entry
+// 9. Create PikVault.desktop entry
 const desktopFile = path.join(targetDir, 'PikVault.desktop');
 fs.writeFileSync(
   desktopFile,
@@ -88,7 +108,7 @@ StartupWMClass=PikVault
 `
 );
 
-// 9. Write user guide README.txt
+// 10. Write user guide README.txt
 const readmeFile = path.join(targetDir, 'README.txt');
 fs.writeFileSync(
   readmeFile,
@@ -101,6 +121,14 @@ It bundles the Electron runtime, Chromium engine, WebAssembly SQLite database,
 and all required dynamic libraries (.so).
 
 No installation of Node.js, npm, or Electron is needed on the target computer.
+
+DATA PERSISTENCE GUARANTEE:
+---------------------------
+Your database and account records are stored in:
+  ./data/app-data/records.sqlite
+
+Rebuilding or updating the project with 'npm run build:standalone' automatically
+preserves this data directory so your accounts and items are NEVER lost across updates.
 
 HOW TO RUN:
 -----------
@@ -128,4 +156,4 @@ simply delete the '.portable' file or execute:
 `
 );
 
-console.log('✓ [Post-Build] Standalone self-contained distribution successfully created at: release/PikVault-linux-x64/');
+console.log('✓ [Post-Build] Standalone self-contained distribution successfully created (user data preserved) at: release/PikVault-linux-x64/');
