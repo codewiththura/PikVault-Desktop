@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,43 +14,48 @@ if (!fs.existsSync(sourceDir)) {
   process.exit(1);
 }
 
-// 2. Safely preserve existing user data across rebuilds
-const targetDataDir = path.join(targetDir, 'data');
-const sourceDataDir = path.join(sourceDir, 'data');
-const backupDataDir = path.join(os.tmpdir(), `pikvault-data-backup-${Date.now()}`);
-let hasExistingData = false;
-
-if (fs.existsSync(targetDataDir)) {
-  console.log(`[Post-Build] Preserving existing user data from ${targetDataDir}...`);
-  fs.cpSync(targetDataDir, backupDataDir, { recursive: true });
-  hasExistingData = true;
-} else if (fs.existsSync(sourceDataDir)) {
-  console.log(`[Post-Build] Preserving existing user data from ${sourceDataDir}...`);
-  fs.cpSync(sourceDataDir, backupDataDir, { recursive: true });
-  hasExistingData = true;
+// 2. Ensure target directory exists
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
 }
 
-// 3. Sync unpacked files to distribution folder
-console.log(`[Post-Build] Syncing standalone distribution to ${targetDir}...`);
-if (fs.existsSync(targetDir)) {
-  fs.rmSync(targetDir, { recursive: true, force: true });
+/**
+ * Safely copies directory recursively:
+ * - Skips 'data' directory to preserve user accounts and SQLite database
+ * - Unlinks existing destination files first to prevent Linux ETXTBSY errors on binaries
+ */
+function safeSyncDirectory(src, dest) {
+  const stat = fs.statSync(src);
+  if (stat.isDirectory()) {
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+    const entries = fs.readdirSync(src);
+    for (const entry of entries) {
+      if (entry === 'data') continue; // Preserve user data directory
+      safeSyncDirectory(path.join(src, entry), path.join(dest, entry));
+    }
+  } else {
+    try {
+      if (fs.existsSync(dest)) {
+        fs.unlinkSync(dest);
+      }
+    } catch {}
+    fs.copyFileSync(src, dest);
+  }
 }
-fs.cpSync(sourceDir, targetDir, { recursive: true });
 
-// 4. Restore preserved user data so user entries are NEVER lost
-if (hasExistingData && fs.existsSync(backupDataDir)) {
-  console.log(`[Post-Build] Restoring preserved user data to ${targetDataDir}...`);
-  fs.cpSync(backupDataDir, targetDataDir, { recursive: true });
-  try {
-    fs.rmSync(backupDataDir, { recursive: true, force: true });
-  } catch {}
-}
+// 3. Sync unpacked application files into distribution folder
+console.log(`[Post-Build] Syncing application files to ${targetDir}...`);
+safeSyncDirectory(sourceDir, targetDir);
 
-// 5. Ensure .portable marker file exists
+// 4. Ensure .portable marker file exists
 const portableFile = path.join(targetDir, '.portable');
-fs.writeFileSync(portableFile, '');
+if (!fs.existsSync(portableFile)) {
+  fs.writeFileSync(portableFile, '');
+}
 
-// 6. Create start.sh convenience launcher script
+// 5. Create start.sh convenience launcher script
 const startSh = path.join(targetDir, 'start.sh');
 fs.writeFileSync(
   startSh,
@@ -77,7 +81,7 @@ try {
   fs.chmodSync(startSh, 0o755);
 } catch {}
 
-// 7. Ensure native ELF binary has execution permission
+// 6. Ensure native ELF binary has execution permission
 const binaryPath = path.join(targetDir, 'PikVault');
 if (fs.existsSync(binaryPath)) {
   try {
@@ -85,14 +89,17 @@ if (fs.existsSync(binaryPath)) {
   } catch {}
 }
 
-// 8. Copy application icon
+// 7. Copy application icon
 const iconSrc = path.join(rootDir, 'public', 'android-chrome-512x512.png');
 const iconDst = path.join(targetDir, 'icon.png');
 if (fs.existsSync(iconSrc)) {
-  fs.copyFileSync(iconSrc, iconDst);
+  try {
+    if (fs.existsSync(iconDst)) fs.unlinkSync(iconDst);
+    fs.copyFileSync(iconSrc, iconDst);
+  } catch {}
 }
 
-// 9. Create PikVault.desktop entry
+// 8. Create PikVault.desktop entry
 const desktopFile = path.join(targetDir, 'PikVault.desktop');
 fs.writeFileSync(
   desktopFile,
@@ -108,7 +115,7 @@ StartupWMClass=PikVault
 `
 );
 
-// 10. Write user guide README.txt
+// 9. Write user guide README.txt
 const readmeFile = path.join(targetDir, 'README.txt');
 fs.writeFileSync(
   readmeFile,
@@ -156,4 +163,4 @@ simply delete the '.portable' file or execute:
 `
 );
 
-console.log('✓ [Post-Build] Standalone self-contained distribution successfully created (user data preserved) at: release/PikVault-linux-x64/');
+console.log('✓ [Post-Build] Standalone self-contained distribution successfully updated (user data preserved) at: release/PikVault-linux-x64/');
