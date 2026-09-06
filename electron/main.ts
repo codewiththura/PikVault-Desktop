@@ -15,13 +15,18 @@ app.name = "account-vault-desktop";
 let isPortable = false;
 if (app.isPackaged) {
   try {
+    const isAppImage = Boolean(process.env.APPIMAGE);
     const exeDir = path.dirname(app.getPath("exe"));
     const portableMarker = path.join(exeDir, ".portable");
     const portableDataDir = path.join(exeDir, "data");
+
+    // AppImage mounts to temporary /tmp, so it should use permanent XDG storage.
+    // Standalone folder uses local ./data directory when .portable or data/ exists.
     if (
-      process.argv.includes("--portable") ||
-      fs.existsSync(portableMarker) ||
-      fs.existsSync(portableDataDir)
+      !isAppImage &&
+      (process.argv.includes("--portable") ||
+        fs.existsSync(portableMarker) ||
+        fs.existsSync(portableDataDir))
     ) {
       isPortable = true;
       const portableAppData = path.join(portableDataDir, "app-data");
@@ -32,9 +37,32 @@ if (app.isPackaged) {
       if (!fs.existsSync(portableUserData)) {
         fs.mkdirSync(portableUserData, { recursive: true });
       }
+
+      // If portable sqlite database doesn't exist yet, check if existing standard user database exists to migrate
+      const portableDb = path.join(portableAppData, "records.sqlite");
+      if (!fs.existsSync(portableDb)) {
+        try {
+          const standardDb = path.join(
+            app.getPath("userData"),
+            "app-data",
+            "records.sqlite",
+          );
+          if (fs.existsSync(standardDb)) {
+            fs.copyFileSync(standardDb, portableDb);
+            console.log(
+              "[Main] Migrated existing user database to portable storage:",
+              portableDb,
+            );
+          }
+        } catch {}
+      }
+
       process.env.APP_DATA_DIR = portableAppData;
       app.setPath("userData", portableUserData);
-      console.log("[Main] Running in self-contained portable mode at:", portableDataDir);
+      console.log(
+        "[Main] Running in self-contained portable mode at:",
+        portableDataDir,
+      );
     }
   } catch (err) {
     console.warn("[Main] Error checking portable mode:", err);
