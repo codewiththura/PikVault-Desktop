@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import initSqlJs, { Database, SqlJsStatic } from 'sql.js';
 
@@ -16,11 +17,19 @@ export function getIsolatedDataDir(): string {
     return process.env.APP_DATA_DIR;
   }
   // Standard standalone isolated directory inside workspace/app
-  const isolatedDir = path.resolve(process.cwd(), 'app-data');
-  if (!fs.existsSync(isolatedDir)) {
-    fs.mkdirSync(isolatedDir, { recursive: true });
+  try {
+    const isolatedDir = path.resolve(process.cwd(), 'app-data');
+    if (!fs.existsSync(isolatedDir)) {
+      fs.mkdirSync(isolatedDir, { recursive: true });
+    }
+    return isolatedDir;
+  } catch {
+    const fallbackDir = path.join(os.tmpdir(), 'account-vault-desktop', 'app-data');
+    if (!fs.existsSync(fallbackDir)) {
+      fs.mkdirSync(fallbackDir, { recursive: true });
+    }
+    return fallbackDir;
   }
-  return isolatedDir;
 }
 
 /**
@@ -31,7 +40,39 @@ export async function initDatabase(): Promise<Database> {
     return dbInstance;
   }
 
-  SQL = await initSqlJs();
+  SQL = await initSqlJs({
+    locateFile: (file: string) => {
+      if (typeof process !== 'undefined' && (process as any).resourcesPath) {
+        const unpackedPath = path.join(
+          (process as any).resourcesPath,
+          'app.asar.unpacked',
+          'node_modules',
+          'sql.js',
+          'dist',
+          file
+        );
+        if (fs.existsSync(unpackedPath)) {
+          return unpackedPath;
+        }
+        const asarPath = path.join(
+          (process as any).resourcesPath,
+          'app.asar',
+          'node_modules',
+          'sql.js',
+          'dist',
+          file
+        );
+        if (fs.existsSync(asarPath)) {
+          return asarPath;
+        }
+      }
+      const localDistPath = path.resolve(process.cwd(), 'node_modules/sql.js/dist', file);
+      if (fs.existsSync(localDistPath)) {
+        return localDistPath;
+      }
+      return file;
+    }
+  });
   const dataDir = getIsolatedDataDir();
   dbFilePath = path.join(dataDir, 'records.sqlite');
 

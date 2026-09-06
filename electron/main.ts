@@ -1,38 +1,90 @@
-import { app, BrowserWindow, Menu } from 'electron';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { initDatabase, getIsolatedDataDir } from './db/database.js';
-import { registerIpcHandlers } from './ipc/handlers.js';
+import { app, BrowserWindow, Menu } from "electron";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { initDatabase, getIsolatedDataDir } from "./db/database.js";
+import { registerIpcHandlers } from "./ipc/handlers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configure application name and isolated persistent user data directory
-app.name = 'account-vault-desktop';
-const dataDir = getIsolatedDataDir();
-const userDataPath = path.join(dataDir, 'user-data');
-if (!fs.existsSync(userDataPath)) {
-  fs.mkdirSync(userDataPath, { recursive: true });
+app.name = "account-vault-desktop";
+
+// Check if running in portable / self-contained folder mode
+let isPortable = false;
+if (app.isPackaged) {
+  try {
+    const exeDir = path.dirname(app.getPath("exe"));
+    const portableMarker = path.join(exeDir, ".portable");
+    const portableDataDir = path.join(exeDir, "data");
+    if (
+      process.argv.includes("--portable") ||
+      fs.existsSync(portableMarker) ||
+      fs.existsSync(portableDataDir)
+    ) {
+      isPortable = true;
+      const portableAppData = path.join(portableDataDir, "app-data");
+      const portableUserData = path.join(portableDataDir, "user-data");
+      if (!fs.existsSync(portableAppData)) {
+        fs.mkdirSync(portableAppData, { recursive: true });
+      }
+      if (!fs.existsSync(portableUserData)) {
+        fs.mkdirSync(portableUserData, { recursive: true });
+      }
+      process.env.APP_DATA_DIR = portableAppData;
+      app.setPath("userData", portableUserData);
+      console.log("[Main] Running in self-contained portable mode at:", portableDataDir);
+    }
+  } catch (err) {
+    console.warn("[Main] Error checking portable mode:", err);
+  }
 }
-app.setPath('userData', userDataPath);
+
+// When running packaged standard mode, persist isolated database to standard XDG user config directory
+if (app.isPackaged && !isPortable && !process.env.APP_DATA_DIR) {
+  try {
+    const standardUserData = app.getPath("userData");
+    const isolatedDir = path.join(standardUserData, "app-data");
+    if (!fs.existsSync(isolatedDir)) {
+      fs.mkdirSync(isolatedDir, { recursive: true });
+    }
+    process.env.APP_DATA_DIR = isolatedDir;
+  } catch (err) {
+    console.warn(
+      "[Main] Could not create standard user-data directory, using fallback:",
+      err,
+    );
+  }
+}
+
+const dataDir = getIsolatedDataDir();
+if (!app.isPackaged) {
+  const userDataPath = path.join(dataDir, "user-data");
+  if (!fs.existsSync(userDataPath)) {
+    fs.mkdirSync(userDataPath, { recursive: true });
+  }
+  app.setPath("userData", userDataPath);
+}
 
 let mainWindow: BrowserWindow | null = null;
 
-
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 async function createWindow() {
+  const iconPath = path.join(__dirname, "../dist/android-chrome-512x512.png");
+
   mainWindow = new BrowserWindow({
     width: 1240,
     height: 820,
     minWidth: 960,
     minHeight: 640,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: "#0a0a0a",
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     show: false,
-    title: 'Account Vault - Storage Catalog (Linux Native)',
+    title: "Account Vault - Storage Catalog (Linux Native)",
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
@@ -42,17 +94,20 @@ async function createWindow() {
   // Remove default window menu for native flat minimalist desktop UI
   Menu.setApplicationMenu(null);
 
-  mainWindow.once('ready-to-show', () => {
+  mainWindow.once("ready-to-show", () => {
     mainWindow?.show();
   });
 
-  const distPath = path.join(__dirname, '../dist/index.html');
+  const distPath = path.join(__dirname, "../dist/index.html");
 
   if (process.env.VITE_DEV_SERVER_URL) {
     try {
       await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     } catch (err) {
-      console.warn('[Main] Failed to connect to dev server URL, falling back to dist/index.html:', err);
+      console.warn(
+        "[Main] Failed to connect to dev server URL, falling back to dist/index.html:",
+        err,
+      );
       if (fs.existsSync(distPath)) {
         await mainWindow.loadFile(distPath);
       }
@@ -61,13 +116,15 @@ async function createWindow() {
     await mainWindow.loadFile(distPath);
   } else {
     try {
-      await mainWindow.loadURL('http://localhost:5173');
+      await mainWindow.loadURL("http://localhost:5173");
     } catch {
-      console.error('[Main] Neither dist/index.html nor dev server is reachable.');
+      console.error(
+        "[Main] Neither dist/index.html nor dev server is reachable.",
+      );
     }
   }
 
-  mainWindow.on('closed', () => {
+  mainWindow.on("closed", () => {
     mainWindow = null;
   });
 }
@@ -81,25 +138,27 @@ app.whenReady().then(async () => {
     // Create Desktop Window
     await createWindow();
 
-    if (process.env.HEADLESS_TEST === 'true') {
-      console.log('[TEST] Desktop window created and DB initialized successfully!');
+    if (process.env.HEADLESS_TEST === "true") {
+      console.log(
+        "[TEST] Desktop window created and DB initialized successfully!",
+      );
       setTimeout(() => {
         app.quit();
       }, 500);
     }
   } catch (err) {
-    console.error('Fatal initialization error:', err);
+    console.error("Fatal initialization error:", err);
   }
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });

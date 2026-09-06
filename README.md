@@ -207,10 +207,117 @@ The output will be placed in:
 - `dist-electron/` (Electron main, preload, and SQLite repositories)
 - `dist/` (Optimized React frontend assets)
 
-To launch the built application:
+To launch the built application locally:
 ```bash
 npm start
 ```
+
+### 6. Packaging & Linux AppImage Generation
+Generate a standalone, production-ready **Linux AppImage** with embedded WebAssembly SQLite and desktop icons:
+```bash
+# Build code and compile the standalone Linux AppImage
+npm run build:appimage
+
+# Alternatively using the standard package script
+npm run package
+```
+
+The generated standalone AppImage is located in:
+- `release/PikVault-1.0.0.AppImage` (x86_64 ELF standalone executable)
+
+#### Running the AppImage on Linux
+Ensure execution permissions are set and launch the binary:
+```bash
+# 1. Grant execution permission (if needed)
+chmod +x release/PikVault-1.0.0.AppImage
+
+# 2. Launch the application
+./release/PikVault-1.0.0.AppImage
+```
+
+> [!TIP]
+> **Data Persistence & Isolation in AppImage Mode:**
+> When running the standalone AppImage, the application automatically persists the SQLite database to the user's standard XDG configuration directory:
+> `~/.config/account-vault-desktop/app-data/records.sqlite`
+> This ensures data survives application updates and never pollutes the working directory or fails when executed from read-only mounts.
+> 
+> If you wish to run in **custom or portable mode**, set the `APP_DATA_DIR` environment variable before launching:
+> ```bash
+> APP_DATA_DIR=/path/to/custom-storage ./release/PikVault-1.0.0.AppImage
+> ```
+
+### 7. Standalone Folder (Self-Contained) ELF Binary Executable
+Generate a **100% Self-Contained, Standalone Distribution Directory** with native ELF 64-bit binary executable, dynamic shared libraries (`.so`), bundled Chromium & Electron runtime, and portable WebAssembly SQLite engine:
+```bash
+# 1. Build the standalone directory
+npm run build:standalone
+
+# 2. (Optional) Build both AppImage and Standalone Directory
+npm run package
+
+# 3. (Optional) Build portable compressed tar.gz archive
+npm run build:archive
+```
+
+#### Standalone Folder Layout (`release/PikVault-linux-x64/`):
+```
+release/PikVault-linux-x64/
+├── PikVault                  # Primary 64-bit ELF binary executable
+├── start.sh                  # Convenience launcher script (executes in portable mode)
+├── .portable                 # Marker file instructing app to persist data inside folder
+├── icon.png                  # High-resolution application icon (512x512)
+├── PikVault.desktop          # Linux desktop entry shortcut
+├── README.txt                # Quick-start instructions for end-users
+├── resources/
+│   ├── app.asar              # Optimized production bundle
+│   └── app.asar.unpacked/    # Extracted WebAssembly SQLite engine (.wasm)
+├── libffmpeg.so              # Embedded media codecs
+├── libEGL.so / libGLESv2.so  # Hardware graphics acceleration
+├── libvulkan.so.1            # Vulkan rendering pipeline
+└── locales/                  # Internationalization language packs
+```
+
+#### Rebuilding After Code Updates or Bug Fixes
+Whenever you fix a bug or add a new feature, run this single automated command:
+```bash
+# 1. (Recommended) Run automated unit and integration tests
+npm test
+
+# 2. Re-compile and generate the updated Standalone Folder in 1 step
+npm run build:standalone
+```
+
+This single command automatically executes:
+1. `tsc -p tsconfig.electron.json` — Compiles Electron backend TypeScript (`dist-electron/`)
+2. `vite build` — Bundles React 19 frontend into optimized assets (`dist/`)
+3. `electron-builder --linux dir` — Packages Linux runtime, ELF binary, and extracts WebAssembly SQLite
+4. `node ./scripts/post-standalone.mjs` — Syncs into `release/PikVault-linux-x64/`, configures `.portable` storage mode, sets execution permissions, and attaches desktop entries and icon assets.
+
+#### Running the Standalone Folder Executable
+Navigate into the standalone directory and run either the launcher or the ELF executable directly:
+```bash
+cd release/PikVault-linux-x64
+
+# Option A: Using the turnkey launcher script (recommended)
+./start.sh
+
+# Option B: Running the ELF binary directly
+chmod +x PikVault
+./PikVault
+```
+
+> [!NOTE]
+> **Zero-Install Portability (Self-Contained Mode):**
+> Because the folder contains the `.portable` marker file, the application operates in **fully self-contained mode**:
+> - SQLite Database: `release/PikVault-linux-x64/data/app-data/records.sqlite`
+> - Cache & Web State: `release/PikVault-linux-x64/data/user-data/`
+>
+> You can copy or move the entire `PikVault-linux-x64` folder to a USB drive or any Linux workstation (Ubuntu, Debian, Fedora, Arch, openSUSE) — **no Node.js, npm, or system dependencies required**.
+>
+> To switch to standard system storage (`~/.config/account-vault-desktop`), delete `.portable` or execute:
+> ```bash
+> ./PikVault --no-portable
+> ```
 
 ---
 
@@ -236,3 +343,5 @@ The project was constructed following a structured, step-by-step milestone workf
 6. `feat(search): implement cross-account global search, master-detail layout, and hotkey navigation`
 7. `docs: add comprehensive README with architecture, schema, and setup guide`
 8. `fix(app): bind highlightedItemId context state in App.tsx for cross-account jump-to-item highlighting`
+9. `feat(build): add Linux AppImage build target, asar wasm unpacking, and packaged data persistence`
+10. `feat(build): add self-contained standalone folder distribution with portable SQLite storage, start.sh launcher, and tar.gz target`

@@ -39,6 +39,13 @@ export const AccountCard: React.FC<AccountCardProps> = ({
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const handleCopyUsername = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(account.username);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   const handleTogglePassword = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowPassword(!showPassword);
@@ -101,7 +108,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             {account.username}
           </span>
           <button
-            onClick={handleCopyPassword}
+            onClick={handleCopyUsername}
             title="Copy password"
             style={{
               background: "transparent",
