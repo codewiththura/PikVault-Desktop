@@ -31,6 +31,12 @@ The application features a sleek design system supporting Dark and Light appeara
 - **Sorting & Filtering**:
   - Instant search by account name or email.
   - Multi-directional sorting by **Name** (`asc`/`desc`), **Last login**, and **Storage Remaining**.
+- **Interactive Resizable Sidebar (`useResizableSidebar` Hook)**:
+  - Managed by a clean, modular custom React hook ([`useResizableSidebar.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/hooks/useResizableSidebar.ts)) isolating width clamping, drag tracking, and window event listeners.
+  - Drag-and-drop splitter divider between the Account Ledger sidebar and the Detail Pane.
+  - Strict min/max width constraints (`min: 260px`, `max: 600px`) preserving master and detail usability across screen sizes.
+  - Keyboard accessible (`Left`/`Right` arrow keys adjust by 10px, `Home`/`End` to boundaries) with double-click reset to default width (`380px`).
+  - Automatically persists the user's preferred sidebar width across application reloads and restarts (`localStorage`).
 
 ### 2. Plain Text Storage Catalog (6 GB Quota Engine)
 - **Metadata-Only Architecture**: The application does **not** store heavy multi-gigabyte media on the local physical disk. It stores structured plain-text catalog records.
@@ -110,6 +116,8 @@ Built following **SOLID**, **DRY**, and **KISS** software engineering principles
 │   │   └── date.ts         # Date/time formatters
 │   ├── services/
 │   │   └── storageAdapter.ts # Universal storage adapter (native Electron SQLite + browser fallback)
+│   ├── hooks/
+│   │   └── useResizableSidebar.ts # Modular resizable split pane controller hook
 │   ├── context/
 │   │   └── AppContext.tsx  # Central state management (accounts, items, settings sync, search)
 │   ├── components/
@@ -356,3 +364,5 @@ The project was constructed following a structured, step-by-step milestone workf
 12. `feat(accounts): add 1-click 'Update to Now' button to refresh account last login to latest current datetime`
 13. `fix(items): add responsive text truncation with ellipsis for file names in List View on narrow windows`
 14. `feat(accounts): require user confirmation before committing account edits or updating last login to now`
+15. `feat(layout): implement interactive resizable sidebar with min-max constraints and width persistence`
+16. `refactor(layout): extract useResizableSidebar custom hook for modular split-pane resizing and maintenance`

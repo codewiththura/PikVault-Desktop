@@ -65,6 +65,7 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
           gap: "4px",
         }}
       >
@@ -135,7 +136,7 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
 
         <Button
           variant="primary"
-          icon={<PlusIcon size={12} />}
+          icon={<PlusIcon size={15} />}
           onClick={onAddAccount}
           title="Add new account record"
         >

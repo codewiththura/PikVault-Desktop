@@ -14,6 +14,7 @@ import { SettingsModal } from "./components/settings/SettingsModal";
 import { ImagePreviewModal } from "./components/common/ImagePreviewModal";
 import { StorageGauge } from "./components/common/StorageGauge";
 import { RefreshCwIcon } from "./components/common/Icons";
+import { useResizableSidebar } from "./hooks/useResizableSidebar";
 import { Account, StoredItem } from "./types";
 import {
   formatDateTime,
@@ -109,6 +110,21 @@ export const App: React.FC = () => {
     }
   };
 
+  // Resizable Sidebar Hook
+  const {
+    sidebarWidth,
+    isResizing,
+    startResizing,
+    resetWidth,
+    handleKeyDown: handleSidebarKeyDown,
+    minWidth: minSidebarWidth,
+    maxWidth: maxSidebarWidth,
+  } = useResizableSidebar({
+    minWidth: 260,
+    maxWidth: 600,
+    defaultWidth: 380,
+  });
+
   return (
     <div
       style={{
@@ -127,18 +143,46 @@ export const App: React.FC = () => {
         {/* Left Master Pane: Accounts */}
         <aside
           style={{
-            width: "var(--sidebar-width)",
-            minWidth: "280px",
-            borderRight: "1px solid var(--border-strong)",
+            width: `${sidebarWidth}px`,
+            minWidth: `${minSidebarWidth}px`,
+            maxWidth: `${maxSidebarWidth}px`,
             background: "var(--bg-primary)",
             display: "flex",
             flexDirection: "column",
             height: "100%",
+            flexShrink: 0,
           }}
         >
           <AccountSortBar onAddAccount={handleOpenNewAccount} />
           <AccountList onEditAccount={handleEditAccount} />
         </aside>
+
+        {/* Resizer Divider */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          aria-valuenow={sidebarWidth}
+          aria-valuemin={minSidebarWidth}
+          aria-valuemax={maxSidebarWidth}
+          tabIndex={0}
+          onMouseDown={startResizing}
+          onDoubleClick={resetWidth}
+          onKeyDown={handleSidebarKeyDown}
+          style={{
+            width: "4px",
+            cursor: "col-resize",
+            background: isResizing
+              ? "var(--accent-white)"
+              : "var(--border-strong)",
+            position: "relative",
+            flexShrink: 0,
+            zIndex: 10,
+            transition: isResizing ? "none" : "background 0.15s ease",
+          }}
+          className="sidebar-resizer"
+          title="Drag to resize sidebar (Double-click to reset)"
+        />
 
         {/* Right Detail Pane: Stored Data Catalog */}
         <main
