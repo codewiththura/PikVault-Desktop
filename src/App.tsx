@@ -88,6 +88,13 @@ export const App: React.FC = () => {
 
   const handleUpdateLastLoginToNow = async () => {
     if (!selectedAccount || isUpdatingLastLogin) return;
+    if (
+      !confirm(
+        `Are you sure you want to update the last login for account "${selectedAccount.username}" to the current datetime?`,
+      )
+    ) {
+      return;
+    }
     try {
       setIsUpdatingLastLogin(true);
       const nowIso = new Date().toISOString();
