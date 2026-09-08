@@ -65,6 +65,16 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       return;
     }
 
+    if (accountToEdit) {
+      if (
+        !confirm(
+          `Are you sure you want to update account "${username.trim()}"?`
+        )
+      ) {
+        return;
+      }
+    }
+
     try {
       setIsSubmitting(true);
       await onSave({
