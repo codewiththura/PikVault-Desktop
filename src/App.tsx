@@ -13,6 +13,7 @@ import { GlobalSearchModal } from "./components/search/GlobalSearchModal";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { ImagePreviewModal } from "./components/common/ImagePreviewModal";
 import { StorageGauge } from "./components/common/StorageGauge";
+import { RefreshCwIcon } from "./components/common/Icons";
 import { Account, StoredItem } from "./types";
 import {
   formatDateTime,
@@ -79,6 +80,25 @@ export const App: React.FC = () => {
       await updateItem(data);
     } else {
       await createItem(data);
+    }
+  };
+
+  // Update Last Login to current datetime
+  const [isUpdatingLastLogin, setIsUpdatingLastLogin] = useState(false);
+
+  const handleUpdateLastLoginToNow = async () => {
+    if (!selectedAccount || isUpdatingLastLogin) return;
+    try {
+      setIsUpdatingLastLogin(true);
+      const nowIso = new Date().toISOString();
+      await updateAccount({
+        id: selectedAccount.id,
+        lastLogin: nowIso,
+      });
+    } catch (err) {
+      console.error("Failed to update last login to now:", err);
+    } finally {
+      setIsUpdatingLastLogin(false);
     }
   };
 
@@ -162,26 +182,64 @@ export const App: React.FC = () => {
                       {selectedAccount.username}
                     </h3>
                   </div>
-                  <span
+                  <div
                     style={{
-                      color: isOlderThanDays(selectedAccount.lastLogin, 30)
-                        ? "var(--accent-danger)"
-                        : "var(--text-secondary)",
-                      fontSize: "var(--font-size-xs)",
-                      fontWeight: isOlderThanDays(selectedAccount.lastLogin, 30)
-                        ? 600
-                        : 400,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      flexWrap: "wrap",
                     }}
-                    title={
-                      selectedAccount.lastLogin
-                        ? `Exact timestamp: ${formatDateTime(selectedAccount.lastLogin)}`
-                        : undefined
-                    }
                   >
-                    Last login: {formatRelativeTime(selectedAccount.lastLogin)}
-                    {isOlderThanDays(selectedAccount.lastLogin, 30) &&
-                      " (Relogin required)"}
-                  </span>
+                    <span
+                      style={{
+                        color: isOlderThanDays(selectedAccount.lastLogin, 30)
+                          ? "var(--accent-danger)"
+                          : "var(--text-secondary)",
+                        fontSize: "var(--font-size-xs)",
+                        fontWeight: isOlderThanDays(
+                          selectedAccount.lastLogin,
+                          30,
+                        )
+                          ? 600
+                          : 400,
+                      }}
+                      title={
+                        selectedAccount.lastLogin
+                          ? `Exact timestamp: ${formatDateTime(selectedAccount.lastLogin)}`
+                          : undefined
+                      }
+                    >
+                      Last login:{" "}
+                      {formatRelativeTime(selectedAccount.lastLogin)}
+                      {isOlderThanDays(selectedAccount.lastLogin, 30) &&
+                        " (Relogin required)"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleUpdateLastLoginToNow}
+                      disabled={isUpdatingLastLogin}
+                      style={{
+                        background: "transparent",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-xs)",
+                        color: "var(--text-secondary)",
+                        marginTop: "5px",
+                        padding: "2px 8px",
+                        cursor: isUpdatingLastLogin ? "not-allowed" : "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        opacity: isUpdatingLastLogin ? 0.6 : 1,
+                        transition: "all var(--transition-fast)",
+                      }}
+                      title="Update last login to latest current datetime"
+                    >
+                      <RefreshCwIcon size={15} />
+                      <span>
+                        {isUpdatingLastLogin ? "Updating..." : "Update to Now"}
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Storage Gauge for active account */}
