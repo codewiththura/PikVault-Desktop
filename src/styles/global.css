@@ -219,3 +219,16 @@
 .data-table tr:hover td {
   background: var(--bg-secondary);
 }
+
+/* Sidebar Resizer Divider */
+.sidebar-resizer {
+  user-select: none;
+  touch-action: none;
+  outline: none;
+}
+
+.sidebar-resizer:hover,
+.sidebar-resizer:focus-visible {
+  background: var(--accent-white) !important;
+}
+
