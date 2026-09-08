@@ -40,7 +40,7 @@ export const ItemList: React.FC<ItemListProps> = ({
         <thead>
           <tr>
             <th style={{ width: "48px" }}>Preview</th>
-            <th>File Name</th>
+            <th style={{ minWidth: "120px", maxWidth: "220px" }}>File Name</th>
             <th style={{ width: "90px" }}>Type</th>
             <th style={{ width: "100px" }}>Size</th>
             <th style={{ width: "110px" }}>Updated</th>
@@ -101,12 +101,16 @@ export const ItemList: React.FC<ItemListProps> = ({
                 </td>
 
                 {/* File Name */}
-                <td>
+                <td style={{ maxWidth: "220px" }}>
                   <span
+                    title={item.fileName}
                     style={{
+                      display: "block",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                       fontWeight: 600,
                       color: "var(--text-primary)",
-                      wordBreak: "break-all",
                     }}
                   >
                     {item.fileName}
@@ -151,7 +155,9 @@ export const ItemList: React.FC<ItemListProps> = ({
                             textDecoration: "none",
                           }}
                         >
-                          <span>Link {idx + 1}</span>
+                          <span style={{ whiteSpace: "nowrap" }}>
+                            Link {idx + 1}
+                          </span>
                           <ExternalLinkIcon size={15} />
                         </a>
                       ))}

@@ -49,7 +49,7 @@ The application features a sleek design system supporting Dark and Light appeara
   - `updatedDate`: Formatted date stamp.
   - `note`: Rich descriptive text.
 - **Dual Presentation Modes**:
-  - **List View**: Dense tabular rows with sortable columns, inline badge tags, note previews, and quick actions with independent vertical and horizontal scrolling.
+  - **List View**: Dense tabular rows with sortable columns, inline badge tags, note previews, and quick actions with independent vertical and horizontal scrolling. The **File Name** column dynamically shrinks on narrow viewport widths, gracefully truncating long names to a few words with an ellipsis (`...`) while preserving full name inspection via native hover tooltips (`title`).
   - **Grid View & Uniform Card Engine**:
     - **Independent Scroll Container**: Uses `overflow-y: auto`, `min-height: 0`, and `align-content: start` so the item grid scrolls smoothly while keeping the toolbar and header pinned.
     - **Fixed Card Dimensions (`350px`)**: Standardized card height ensuring uniform multi-column alignment across varying screen widths.
@@ -353,3 +353,4 @@ The project was constructed following a structured, step-by-step milestone workf
 10. `feat(build): add self-contained standalone folder distribution with portable SQLite storage, start.sh launcher, and tar.gz target`
 11. `fix(items): enable independent vertical scrolling on ItemGrid and standardize fixed-height ItemCard layout`
 12. `feat(accounts): add 1-click 'Update to Now' button to refresh account last login to latest current datetime`
+13. `fix(items): add responsive text truncation with ellipsis for file names in List View on narrow windows`
