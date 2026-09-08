@@ -32,7 +32,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         flexDirection: "column",
         position: "relative",
         transition: "border-color var(--transition-fast)",
-        overflow: "hidden",
+        boxSizing: "border-box",
       }}
       className="item-card"
     >
@@ -40,12 +40,13 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       {item.imageUrl ? (
         <div
           style={{
-            height: "140px",
+            height: "200px",
             width: "100%",
             overflow: "hidden",
             borderBottom: "1px solid var(--border-subtle)",
             background: "var(--bg-primary)",
             cursor: "pointer",
+            flexShrink: 0,
           }}
           onClick={() => onPreviewImage(item.imageUrl!)}
         >
@@ -66,7 +67,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       ) : (
         <div
           style={{
-            height: "60px",
+            height: "200px",
             width: "100%",
             borderBottom: "1px solid var(--border-subtle)",
             background: "var(--bg-primary)",
@@ -74,6 +75,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             alignItems: "center",
             justifyContent: "center",
             color: "var(--text-muted)",
+            fontSize: "var(--font-size-md)",
+            textTransform: "uppercase",
+            flexShrink: 0,
           }}
         >
           {item.fileType || "File"}
@@ -88,6 +92,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           display: "flex",
           flexDirection: "column",
           gap: "8px",
+          minHeight: 0,
         }}
       >
         {/* Title */}
@@ -95,8 +100,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           style={{
             fontWeight: 700,
             color: "var(--text-primary)",
-            wordBreak: "break-all",
-            lineHeight: 1.4,
+            lineHeight: 1.3,
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            wordBreak: "break-word",
           }}
           title={item.fileName}
         >
@@ -110,6 +119,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             gap: "6px",
             alignItems: "center",
             flexWrap: "wrap",
+            flexShrink: 0,
           }}
         >
           <Badge variant="white">{item.fileType || "mp4"}</Badge>
@@ -118,7 +128,6 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             <span
               style={{
                 color: "var(--text-muted)",
-                fontSize: "var(--font-size-xs)",
               }}
             >
               {formatDateOnly(item.updatedDate)}
@@ -127,17 +136,26 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         </div>
 
         {/* Note */}
-        {item.note && (
+        {item.note ? (
           <p
             style={{
               color: "var(--text-secondary)",
+              fontSize: "var(--font-size-xs)",
               lineHeight: 1.4,
               flex: 1,
-              marginTop: "4px",
+              marginTop: "2px",
+              marginBottom: 0,
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
             }}
+            title={item.note}
           >
             {item.note}
           </p>
+        ) : (
+          <div style={{ flex: 1 }} />
         )}
 
         {/* External Links */}
@@ -147,8 +165,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               display: "flex",
               flexWrap: "wrap",
               gap: "4px",
-              marginTop: "auto",
-              paddingTop: "6px",
+              flexShrink: 0,
             }}
           >
             {item.externalLinks.map((link, idx) => (
@@ -166,11 +183,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                   border: "1px solid var(--border-subtle)",
                   borderRadius: "var(--radius-xs)",
                   padding: "2px 6px",
+                  fontSize: "var(--font-size-xs)",
                   textDecoration: "none",
                 }}
               >
                 <span>Link {idx + 1}</span>
-                <ExternalLinkIcon size={15} />
+                <ExternalLinkIcon size={12} />
               </a>
             ))}
           </div>
@@ -186,6 +204,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           display: "flex",
           justifyContent: "flex-end",
           gap: "6px",
+          flexShrink: 0,
         }}
       >
         <button

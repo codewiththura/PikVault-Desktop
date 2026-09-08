@@ -1,6 +1,6 @@
-import React from 'react';
-import { StoredItem } from '../../types';
-import { ItemCard } from './ItemCard';
+import React from "react";
+import { StoredItem } from "../../types";
+import { ItemCard } from "./ItemCard";
 
 interface ItemGridProps {
   items: StoredItem[];
@@ -21,9 +21,9 @@ export const ItemGrid: React.FC<ItemGridProps> = ({
     return (
       <div
         style={{
-          padding: '48px 16px',
-          textAlign: 'center',
-          color: 'var(--text-muted)',
+          padding: "48px 16px",
+          textAlign: "center",
+          color: "var(--text-muted)",
         }}
       >
         No stored data items in this account
@@ -31,16 +31,19 @@ export const ItemGrid: React.FC<ItemGridProps> = ({
     );
   }
 
-
   return (
     <div
       style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: '16px',
-        padding: '16px',
-        overflowY: 'auto',
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+        gap: "16px",
+        padding: "16px",
+        overflowY: "auto",
+        overflowX: "hidden",
+        minHeight: 0,
+        height: "100%",
         flex: 1,
+        alignContent: "start",
       }}
     >
       {items.map((item) => (
