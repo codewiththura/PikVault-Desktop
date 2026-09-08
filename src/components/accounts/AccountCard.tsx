@@ -56,7 +56,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
     setTimeout(
       () =>
         setCopied((prev) => {
-          return { ...prev, password: false };
+          return { ...prev, username: false };
         }),
       1500,
     );
