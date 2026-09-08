@@ -48,8 +48,13 @@ The application features a sleek design system supporting Dark and Light appeara
   - `updatedDate`: Formatted date stamp.
   - `note`: Rich descriptive text.
 - **Dual Presentation Modes**:
-  - **List View**: Dense tabular rows with sortable columns, inline badge tags, note previews, and quick actions.
-  - **Grid View**: Multi-column responsive cards with image preview headers, badges, and action bars.
+  - **List View**: Dense tabular rows with sortable columns, inline badge tags, note previews, and quick actions with independent vertical and horizontal scrolling.
+  - **Grid View & Uniform Card Engine**:
+    - **Independent Scroll Container**: Uses `overflow-y: auto`, `min-height: 0`, and `align-content: start` so the item grid scrolls smoothly while keeping the toolbar and header pinned.
+    - **Fixed Card Dimensions (`350px`)**: Standardized card height ensuring uniform multi-column alignment across varying screen widths.
+    - **Proportional Media Headers**: 140px fixed thumbnail header (with image object-cover or uniform fallback file type badge).
+    - **Truncation & Overflow Protection**: Two-line clamped file names and notes with text-overflow ellipsis to prevent cards from overflowing or stretching unevenly.
+    - **Responsive Link Trays & Action Bars**: Compact external link pills and pinned action buttons (Edit, Delete) in the card footer.
 - **In-Account Search**: Instant local filter by file name or notes within the active account.
 
 ### 4. 🔍 Special Feature: Cross-Account Global Search (`Ctrl+K`)
@@ -345,3 +350,4 @@ The project was constructed following a structured, step-by-step milestone workf
 8. `fix(app): bind highlightedItemId context state in App.tsx for cross-account jump-to-item highlighting`
 9. `feat(build): add Linux AppImage build target, asar wasm unpacking, and packaged data persistence`
 10. `feat(build): add self-contained standalone folder distribution with portable SQLite storage, start.sh launcher, and tar.gz target`
+11. `fix(items): enable independent vertical scrolling on ItemGrid and standardize fixed-height ItemCard layout`

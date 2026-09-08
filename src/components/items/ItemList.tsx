@@ -35,7 +35,7 @@ export const ItemList: React.FC<ItemListProps> = ({
   }
 
   return (
-    <div style={{ overflowX: "auto", flex: 1 }}>
+    <div style={{ overflow: "auto", flex: 1, minHeight: 0 }}>
       <table className="data-table">
         <thead>
           <tr>

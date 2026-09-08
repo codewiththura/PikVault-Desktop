@@ -200,9 +200,10 @@ export const App: React.FC = () => {
               <div
                 style={{
                   flex: 1,
-                  overflowY: "auto",
+                  overflow: "hidden",
                   display: "flex",
                   flexDirection: "column",
+                  minHeight: 0,
                 }}
               >
                 {itemViewMode === "list" ? (
