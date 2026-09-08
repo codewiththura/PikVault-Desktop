@@ -25,6 +25,7 @@ The application features a sleek design system supporting Dark and Light appeara
 ### 1. Account Records Ledger
 - **Credentials & Metadata**: Tracks Username (email), Password (with 1-click clipboard copy and masked/unmasked toggle), and Last Login timestamp.
 - **Relative Last Login & Overdue Alerts**: Displays Last Login in human-friendly relative format (e.g. `Just now`, `20 days ago`, `1 month ago`, `2 years ago`). If an account has not been logged into for more than 1 month (>= 30 days), the label turns red (`var(--accent-danger)`) with a high-contrast `Relogin` badge alerting the user to re-authenticate.
+- **1-Click "Update to Now" Timestamp Refresh**: Beside the active account's Last Login indicator in the detail pane, an inline **"Update to Now"** action button allows users to immediately stamp the account's `lastLogin` timestamp to the latest current date & time. This immediately clears overdue relogin alerts, recalculates relative timestamps, updates SQLite persistence, and updates account sort ordering.
 - **Auto Password Generator**: Integrated cryptographic random password generator.
 - **Sorting & Filtering**:
   - Instant search by account name or email.
@@ -351,3 +352,4 @@ The project was constructed following a structured, step-by-step milestone workf
 9. `feat(build): add Linux AppImage build target, asar wasm unpacking, and packaged data persistence`
 10. `feat(build): add self-contained standalone folder distribution with portable SQLite storage, start.sh launcher, and tar.gz target`
 11. `fix(items): enable independent vertical scrolling on ItemGrid and standardize fixed-height ItemCard layout`
+12. `feat(accounts): add 1-click 'Update to Now' button to refresh account last login to latest current datetime`
