@@ -222,15 +222,85 @@ CREATE INDEX IF NOT EXISTS idx_accounts_username ON accounts(username);
 
 ---
 
-## 🛠 Getting Started (Step-by-Step)
+## 📥 End-User Installation Guide (Linux & Windows)
+
+Download the latest version for your Operating System from **[GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases)**.
+
+---
+
+### 🐧 1. Installing & Running on Linux
+
+PikVault supports all major Linux distributions (Ubuntu, Debian, Fedora, Arch, openSUSE, etc.).
+
+#### Option A: AppImage (Recommended)
+1. **Download**: Download `PikVault-1.0.0.AppImage` from [GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases).
+2. **Make Executable**: Open your terminal in your Download folder and grant execution permission:
+   ```bash
+   chmod +x PikVault-1.0.0.AppImage
+   ```
+3. **Launch**: Double-click the file in your file manager or launch from terminal:
+   ```bash
+   ./PikVault-1.0.0.AppImage
+   ```
+> **Data Storage Location**: Automatically saves database records to `~/.config/account-vault-desktop/app-data/records.sqlite`.
+
+#### Option B: Standalone Portable Folder (Zero-Install / USB Stick)
+1. **Download & Extract**: Download `account-vault-desktop-1.0.0.tar.gz` and extract it:
+   ```bash
+   tar -xzf account-vault-desktop-1.0.0.tar.gz
+   cd PikVault-linux-x64
+   ```
+2. **Launch**: Run the turnkey launcher script:
+   ```bash
+   ./start.sh
+   ```
+   *(Or execute `./PikVault` directly).*
+> **Data Storage Location**: Keeps all database records isolated inside `PikVault-linux-x64/data/app-data/records.sqlite`.
+
+---
+
+### 🪟 2. Installing & Running on Windows
+
+PikVault supports Windows 10 and Windows 11 (64-bit).
+
+#### Option A: Standard Setup Installer (.exe)
+1. **Download**: Download `PikVault-Setup-1.0.0.exe` from [GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases).
+2. **Install**: Double-click `PikVault-Setup-1.0.0.exe` to start the setup wizard.
+3. **Follow Wizard**: Select your installation directory and choose whether to create Desktop and Start Menu shortcuts.
+4. **Launch**: Open **PikVault** from your Windows Start Menu or Desktop shortcut.
+> **Data Storage Location**: Saves database & user data in `%APPDATA%\account-vault-desktop\app-data\records.sqlite`.
+
+#### Option B: Portable Executable / Zip (USB / Zero-Install)
+1. **Download**: Download `PikVault-1.0.0-portable.exe` (or `PikVault-1.0.0-win.zip`).
+2. **Launch**:
+   - For `PikVault-1.0.0-portable.exe`: Double-click the `.exe` file directly.
+   - For `PikVault-1.0.0-win.zip`: Extract the `.zip` archive and double-click `PikVault.exe`.
+> **Data Storage Location**: Automatically creates a `data\app-data\` folder next to the executable to keep all data self-contained.
+
+---
+
+### 🍎 3. Installing & Running on macOS
+
+PikVault supports macOS (Intel & Apple Silicon Macs).
+
+1. **Download**: Download `PikVault-1.0.0-mac.zip` (or `PikVault-1.0.0.dmg`) from [GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases).
+2. **Extract & Move**:
+   - Unzip `PikVault-1.0.0-mac.zip` and move `PikVault.app` into your **Applications** folder.
+3. **First Launch (macOS Security Gatekeeper)**:
+   - On modern macOS versions, right-click `PikVault.app` in Applications and select **Open** (or execute `xattr -cr /Applications/PikVault.app` in terminal if Gatekeeper prompts an unverified developer warning).
+> **Data Storage Location**: Saves database records in `~/Library/Application Support/account-vault-desktop/app-data/records.sqlite`.
+
+---
+
+## 🛠 Developer Setup & Build Commands (Step-by-Step)
 
 ### 1. Prerequisites
 
-- **Linux** (Debian, Ubuntu, Arch, Fedora, openSUSE, etc.)
 - **Node.js**: >= 20.0.0 (Node 24 recommended)
 - **npm**: >= 10.0.0
+- **Git**
 
-### 2. Installation
+### 2. Local Setup
 
 ```bash
 # Clone or navigate to the project directory
@@ -451,6 +521,41 @@ npm run build:cross-platform
 
 ---
 
+### 9. 🍎 macOS Releases (.dmg Installer & Standalone .zip)
+
+The project supports cross-compiling **macOS distribution packages** (`.dmg` installer and `.zip` application archive) directly on Linux.
+
+#### Available macOS Release Formats
+
+1. **macOS Portable Zip Archive (`PikVault-1.0.0-mac.zip`)**:
+   - Contains the self-contained `PikVault.app` bundle.
+   - Recommended for distribution. Users extract and place `PikVault.app` into `/Applications`.
+
+2. **macOS Apple Disk Image Installer (`PikVault-1.0.0.dmg`)**:
+   - Standard macOS `.dmg` drag-to-Applications disk image installer.
+
+#### Build Commands for macOS
+
+```bash
+# 1. Build all macOS release targets (.zip archive & .dmg disk image)
+npm run build:mac
+
+# 2. Build only the macOS Zip Archive (PikVault-1.0.0-mac.zip containing PikVault.app)
+npm run build:mac:zip
+
+# 3. Build only the macOS DMG Disk Image Installer (.dmg)
+npm run build:mac:dmg
+
+# 4. Build full cross-platform distribution suite (Linux + Windows + macOS)
+npm run build:cross-platform
+```
+
+> [!NOTE]
+> **macOS Security Gatekeeper Note:**
+> Builds compiled on Linux are unsigned because Apple `codesign` and notarization tools require macOS host environment APIs. When users open an unsigned app on modern macOS versions, Gatekeeper prompts a security warning. Users can grant permission by right-clicking `PikVault.app` $\rightarrow$ **Open**, or executing `xattr -cr /Applications/PikVault.app` in the Mac terminal.
+
+---
+
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut               | Action                                      |
@@ -483,4 +588,6 @@ The project was constructed following a structured, step-by-step milestone workf
 16. `refactor(layout): extract useResizableSidebar custom hook for modular split-pane resizing and maintenance`
 17. `feat(layout): add responsive auto-collapsing global search bar in AppHeader for compact and minimum window widths`
 18. `feat(windows): configure Windows release generation with NSIS setup, portable exe, and cross-platform builds`
+19. `feat(mac): configure macOS distribution packaging (.dmg installer and zip archive)`
+
 

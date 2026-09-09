@@ -17,8 +17,11 @@
     "build:win:nsis": "npm run build && electron-builder --win nsis",
     "build:win:portable": "npm run build && electron-builder --win portable",
     "build:win:zip": "npm run build && electron-builder --win zip",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:mac:dmg": "npm run build && electron-builder --mac dmg",
+    "build:mac:zip": "npm run build && electron-builder --mac zip",
     "build:all": "npm run build && electron-builder --linux AppImage dir tar.gz",
-    "build:cross-platform": "npm run build && electron-builder --linux AppImage dir tar.gz --win nsis portable zip",
+    "build:cross-platform": "npm run build && electron-builder --linux AppImage dir tar.gz --win nsis portable zip --mac dmg zip",
     "start": "electron --no-sandbox .",
     "test": "node --test tests/**/*.test.mjs",
     "package": "npm run build && electron-builder --linux AppImage dir"
@@ -68,6 +71,18 @@
     },
     "portable": {
       "artifactName": "${productName}-${version}-portable.${ext}"
+    },
+    "mac": {
+      "executableName": "PikVault",
+      "category": "public.app-category.utilities",
+      "target": [
+        "zip",
+        "dmg"
+      ],
+      "icon": "public/icon.icns"
+    },
+    "dmg": {
+      "artifactName": "${productName}-${version}.${ext}"
     }
   },
   "keywords": [

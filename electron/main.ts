@@ -105,9 +105,16 @@ const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 async function createWindow() {
   const isWin = process.platform === "win32";
+  const isMac = process.platform === "darwin";
   const iconPath = isWin
     ? path.join(__dirname, "../dist/icon.ico")
     : path.join(__dirname, "../dist/android-chrome-512x512.png");
+
+  const platformTitle = isWin
+    ? "Account Vault - Storage Catalog (Windows)"
+    : isMac
+      ? "Account Vault - Storage Catalog (macOS)"
+      : "Account Vault - Storage Catalog (Linux Native)";
 
   mainWindow = new BrowserWindow({
     width: 1240,
@@ -117,9 +124,7 @@ async function createWindow() {
     backgroundColor: "#0a0a0a",
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     show: false,
-    title: isWin
-      ? "Account Vault - Storage Catalog (Windows)"
-      : "Account Vault - Storage Catalog (Linux Native)",
+    title: platformTitle,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
