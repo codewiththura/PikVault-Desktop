@@ -1,8 +1,36 @@
-# Account & Storage Vault (Linux Native Desktop)
+# Account & Storage Vault (PikVault Desktop)
 
-An industrial-grade, standalone Linux desktop application built with **Electron**, **React 19**, **TypeScript**, **Vite**, and an **isolated SQLite database**.
+An industrial-grade, cross-platform standalone desktop application built with **Electron**, **React 19**, **TypeScript**, **Vite**, and an **isolated WebAssembly SQLite database**.
 
-The application serves as a high-density, high-contrast account ledger and storage catalog manager designed for power users to catalog multiple remote accounts and track stored file metadata against a strict **6 GB storage quota** per account.
+**PikVault** serves as a high-density, privacy-focused account ledger and digital storage catalog manager designed for power users who manage multiple remote accounts, partitioned cloud storage tiers, and large digital asset collections across **Linux** and **Windows**.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1b0f02a6-e1cf-4feb-bccc-8a2082a0a220" alt="PikVault Desktop Main Account Ledger View" width="100%" />
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c224f56e-0abc-407e-9dd3-14df2c001aa9" alt="PikVault Desktop Storage Catalog Grid View" width="100%" />
+</p>
+
+---
+
+## 🌟 General Overview & Purpose
+
+### What Does the Application Do?
+Modern power users frequently distribute files, media archives, backups, and datasets across multiple cloud services, object storage buckets, and tiered free/premium accounts. Keeping track of credentials, stored asset locations, and account quota limits manually is tedious and error-prone.
+
+**PikVault** provides a unified, 100% offline control plane that:
+1. **Tracks Multi-Account Credentials & Activity**: Organizes all your accounts in a structured ledger with integrated cryptographic password generation, 1-click clipboard copying, and automated login freshness tracking (with overdue re-login alerts for inactive accounts).
+2. **Catalogs Stored Data Without Heavy Disk Overhead**: Uses a lightweight **metadata-only architecture** to record file names, file sizes, format types, download/mirror links, notes, and thumbnail preview URLs without needing to store heavy multi-gigabyte media locally on your computer.
+3. **Monitors Strict Per-Account Storage Quotas (e.g., 6 GB Tier Limits)**: Dynamically sums up stored file weights for each account in real time, displaying exact remaining storage capacity and visual warning gauges before an account overflows its allocated threshold.
+4. **Enables Instant Cross-Account Global Search (`Ctrl+K`)**: Rapidly searches stored file records across *every* registered account simultaneously, identifying which account owns a specific file and providing a 1-click jump into the target account.
+5. **Guarantees 100% Offline Privacy & Portability**: Operates completely local-first with zero telemetry and zero external cloud database dependencies. Data is stored in an isolated SQLite database (`records.sqlite`) with full portable mode support, runnable straight from USB flash drives.
+
+### What Is the Application Used For? (Target Use Cases)
+- **Multi-Account Cloud Storage Partitioning**: Power users who split backups, media libraries, dataset archives, or software releases across multiple cloud accounts (e.g., Google Drive, MEGA, Proton Drive, OneDrive, Nextcloud, custom VPS buckets) and need to monitor capacity against free-tier storage limits (e.g., 6 GB quotas).
+- **Centralized Digital Asset Indexing**: Creating a fast, searchable index of where specific files, download mirrors, and resources live across the web without having to log into multiple services just to find an asset.
+- **Account Maintenance & Expiration Prevention**: Monitoring last-login timestamps across numerous secondary accounts to ensure they do not get pruned or suspended due to inactivity.
+- **Air-Gapped / Portable Data Inventory**: Maintaining a private, portable inventory of software assets, client deliverables, or credential ledgers on a self-contained USB stick across Linux workstations and Windows machines.
 
 ---
 
@@ -22,6 +50,7 @@ The application features a sleek design system supporting Dark and Light appeara
 ---
 
 ## 🚀 Key Features
+
 
 ### 1. Account Records Ledger
 
@@ -83,7 +112,7 @@ The application features a sleek design system supporting Dark and Light appeara
 ### 5. Standalone Isolated SQLite Database & JSON Backup
 
 - **Isolated Engine**: Powered by WebAssembly SQLite (`sql.js`), saving directly to `app-data/records.sqlite`.
-- **Zero Native Build Hassles**: Does not require native node-gyp C++ compilation, avoiding Linux ABI and glibc compatibility issues.
+- **Zero Native Build Hassles**: Does not require native node-gyp C++ compilation, avoiding Linux ABI/glibc issues and Windows MSVC build tool dependencies.
 - **Container-Like Isolation**: Kept self-contained within the application folder.
 - **JSON Backup / Restore**:
   - **Export**: Generates a portable, versioned JSON snapshot containing all accounts and items.
@@ -103,7 +132,7 @@ Built following **SOLID**, **DRY**, and **KISS** software engineering principles
 
 ```
 ├── electron/
-│   ├── main.ts             # Electron main process (window lifecycle, Linux config)
+│   ├── main.ts             # Electron main process (window lifecycle, cross-platform config)
 │   ├── preload.ts          # Secure contextBridge API exposing typed ElectronAPI
 │   ├── types.ts            # Type definitions for the main process
 │   ├── db/
@@ -373,6 +402,55 @@ chmod +x PikVault
 
 ---
 
+### 8. 🪟 Windows Releases (.exe Installer, Portable .exe, & Standalone Zip)
+
+The project supports cross-compiling first-class **Windows releases** directly from Linux. Because the SQLite database engine utilizes WebAssembly (`sql.js`), there are no native C++ Windows compiler toolchains or `node-gyp` hurdles.
+
+#### Available Windows Release Formats
+
+1. **Standard NSIS Setup Installer (`PikVault-Setup-1.0.0.exe`)**:
+   - Standard guided Windows setup wizard.
+   - Creates Start Menu and Desktop shortcuts.
+   - Allows users to select custom installation directory.
+   - Automatically stores database and user state in standard Windows Roaming AppData: `%APPDATA%\account-vault-desktop\app-data\records.sqlite`.
+
+2. **Standalone Single Portable Executable (`PikVault-1.0.0-portable.exe`)**:
+   - Zero-installation self-contained single `.exe`.
+   - Run directly from a USB flash drive or any folder on Windows.
+   - Automatically discovers its host directory (`PORTABLE_EXECUTABLE_DIR`) and keeps `data/app-data/records.sqlite` alongside the executable without touching Windows system registry or roaming directories.
+
+3. **Windows Standalone Zip Archive (`PikVault-1.0.0-win.zip` / `release/win-unpacked/`)**:
+   - Ready-to-use directory with `PikVault.exe`, graphics acceleration DLLs (`d3dcompiler_47.dll`, `libGLESv2.dll`, `vulkan-1.dll`), and assets.
+   - Built directly on Linux without external dependencies.
+
+#### Build Commands for Windows
+
+```bash
+# 1. Build all Windows targets (NSIS Setup, Portable .exe, and Standalone Zip)
+npm run build:win
+
+# 2. Build only the Standard NSIS Setup Installer (.exe)
+npm run build:win:nsis
+
+# 3. Build only the Standalone Portable Executable (.exe)
+npm run build:win:portable
+
+# 4. Build only the Standalone Zip Archive (.zip with win-unpacked/)
+npm run build:win:zip
+
+# 5. Build full cross-platform distribution suite (Linux AppImage + dir + tar.gz AND Windows targets)
+npm run build:cross-platform
+```
+
+> [!NOTE]
+> **Prerequisite for Building `.exe` Installers on Linux:**
+> While unpacked Windows binaries and `.zip` archives build natively on Linux, generating single-file `.exe` installers (`nsis` and `portable`) utilizes Windows PE and NSIS tools which require **Wine** on Linux:
+> - **Ubuntu / Debian**: `sudo apt install wine wine64`
+> - **Arch Linux**: `sudo pacman -S wine`
+> - **Fedora**: `sudo dnf install wine`
+
+---
+
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut               | Action                                      |
@@ -404,3 +482,5 @@ The project was constructed following a structured, step-by-step milestone workf
 15. `feat(layout): implement interactive resizable sidebar with min-max constraints and width persistence`
 16. `refactor(layout): extract useResizableSidebar custom hook for modular split-pane resizing and maintenance`
 17. `feat(layout): add responsive auto-collapsing global search bar in AppHeader for compact and minimum window widths`
+18. `feat(windows): configure Windows release generation with NSIS setup, portable exe, and cross-platform builds`
+

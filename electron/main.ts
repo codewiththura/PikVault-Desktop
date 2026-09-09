@@ -16,15 +16,19 @@ let isPortable = false;
 if (app.isPackaged) {
   try {
     const isAppImage = Boolean(process.env.APPIMAGE);
-    const exeDir = path.dirname(app.getPath("exe"));
+    // On Windows portable mode, electron-builder provides PORTABLE_EXECUTABLE_DIR
+    const isWindowsPortable = Boolean(process.env.PORTABLE_EXECUTABLE_DIR);
+    const exeDir =
+      process.env.PORTABLE_EXECUTABLE_DIR || path.dirname(app.getPath("exe"));
     const portableMarker = path.join(exeDir, ".portable");
     const portableDataDir = path.join(exeDir, "data");
 
     // AppImage mounts to temporary /tmp, so it should use permanent XDG storage.
-    // Standalone folder uses local ./data directory when .portable or data/ exists.
+    // Standalone folder & Windows portable use local ./data directory when .portable, data/, or PORTABLE_EXECUTABLE_DIR exists.
     if (
       !isAppImage &&
-      (process.argv.includes("--portable") ||
+      (isWindowsPortable ||
+        process.argv.includes("--portable") ||
         fs.existsSync(portableMarker) ||
         fs.existsSync(portableDataDir))
     ) {
@@ -100,7 +104,10 @@ let mainWindow: BrowserWindow | null = null;
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 async function createWindow() {
-  const iconPath = path.join(__dirname, "../dist/android-chrome-512x512.png");
+  const isWin = process.platform === "win32";
+  const iconPath = isWin
+    ? path.join(__dirname, "../dist/icon.ico")
+    : path.join(__dirname, "../dist/android-chrome-512x512.png");
 
   mainWindow = new BrowserWindow({
     width: 1240,
@@ -110,7 +117,9 @@ async function createWindow() {
     backgroundColor: "#0a0a0a",
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     show: false,
-    title: "Account Vault - Storage Catalog (Linux Native)",
+    title: isWin
+      ? "Account Vault - Storage Catalog (Windows)"
+      : "Account Vault - Storage Catalog (Linux Native)",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
