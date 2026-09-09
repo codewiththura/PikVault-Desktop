@@ -68,7 +68,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     if (accountToEdit) {
       if (
         !confirm(
-          `Are you sure you want to update account "${username.trim()}"?`
+          `Are you sure you want to update account "${username.trim()}"?`,
         )
       ) {
         return;
@@ -92,16 +92,16 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     }
   };
 
-  // const generatePassword = () => {
-  //   const chars =
-  //     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-  //   let res = "";
-  //   for (let i = 0; i < 14; i++) {
-  //     res += chars.charAt(Math.floor(Math.random() * chars.length));
-  //   }
-  //   setPassword(res);
-  //   setShowPassword(true);
-  // };
+  const generatePassword = () => {
+    const chars =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    let res = "";
+    for (let i = 0; i < 14; i++) {
+      res += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setPassword(res);
+    setShowPassword(true);
+  };
 
   return (
     <Modal
@@ -148,19 +148,21 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             }}
           >
             <label className="form-label">Password *</label>
-            {/* <button
-              type="button"
-              onClick={generatePassword}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
-            >
-              Auto-generate
-            </button> */}
+            {!accountToEdit && (
+              <button
+                type="button"
+                onClick={generatePassword}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                Auto-generate
+              </button>
+            )}
           </div>
           <div
             style={{
