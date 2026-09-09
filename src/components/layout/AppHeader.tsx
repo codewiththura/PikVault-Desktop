@@ -92,7 +92,12 @@ export const AppHeader: React.FC = () => {
               fontSize: "var(--font-size-2xs)",
             }}
           >
-            Linux Native
+            {typeof navigator !== "undefined" &&
+            (navigator.userAgent.includes("Windows") ||
+              navigator.userAgent.includes("Win32") ||
+              navigator.userAgent.includes("Win64"))
+              ? "Windows Native"
+              : "Linux Native"}
           </span>
         </div>
 
