@@ -497,8 +497,6 @@ chmod +x PikVault
 > ./PikVault --no-portable
 > ```
 
----
-
 ### 8. Windows Releases (.exe Installer, Portable .exe, & Standalone Zip)
 
 The project supports cross-compiling first-class **Windows releases** directly from Linux. Because the SQLite database engine utilizes WebAssembly (`sql.js`), there are no native C++ Windows compiler toolchains or `node-gyp` hurdles.
@@ -546,8 +544,6 @@ npm run build:cross-platform
 > - **Ubuntu / Debian**: `sudo apt install wine wine64`
 > - **Arch Linux**: `sudo pacman -S wine`
 > - **Fedora**: `sudo dnf install wine`
-
----
 
 ### 9. macOS Releases (.dmg Installer & Standalone .zip)
 
