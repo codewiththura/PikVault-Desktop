@@ -65,8 +65,8 @@ export const AppHeader: React.FC = () => {
       }}
     >
       {/* App Branding & Stats */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "16px", minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
           <div
             style={{
               width: "16px",
@@ -105,6 +105,7 @@ export const AppHeader: React.FC = () => {
             color: "var(--text-secondary)",
             borderLeft: "1px solid var(--border-subtle)",
             paddingLeft: "14px",
+            whiteSpace: "nowrap",
           }}
         >
           <span>
@@ -129,34 +130,16 @@ export const AppHeader: React.FC = () => {
       </div>
 
       {/* Global Search Hotkey Button & Backups */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
         <button
           onClick={() => setIsGlobalSearchOpen(true)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "var(--bg-secondary)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            color: "var(--text-secondary)",
-            padding: "5px 12px",
-            cursor: "pointer",
-            transition: "all var(--transition-fast)",
-          }}
+          className="global-search-btn"
           title="Search stored data across all accounts (Ctrl+K)"
+          aria-label="Search stored data across all accounts (Ctrl+K)"
         >
           <SearchIcon size={14} />
-          <span>Global Search Data...</span>
-          <kbd
-            style={{
-              background: "var(--bg-primary)",
-              border: "1px solid var(--border-strong)",
-              borderRadius: "var(--radius-xs)",
-              padding: "1px 5px",
-              color: "var(--text-primary)",
-            }}
-          >
+          <span className="global-search-label">Global Search Data...</span>
+          <kbd className="global-search-kbd">
             Ctrl+K
           </kbd>
         </button>

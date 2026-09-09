@@ -294,7 +294,7 @@ export const App: React.FC = () => {
                 </div>
 
                 {/* Storage Gauge for active account */}
-                <div style={{ width: "260px" }}>
+                <div style={{ width: "320px" }}>
                   <StorageGauge
                     totalUsedMB={selectedAccount.totalUsedMB}
                     maxStorageGB={selectedAccount.maxStorageGB || 6}
