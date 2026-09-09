@@ -69,7 +69,14 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
           gap: "4px",
         }}
       >
-        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "4px",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <span style={{ color: "var(--text-muted)", marginRight: "2px" }}>
             Sort:
           </span>
@@ -85,6 +92,7 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
                   : "var(--text-secondary)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "var(--radius-md)",
+              textWrap: "nowrap",
               cursor: "pointer",
             }}
           >
@@ -105,6 +113,7 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
                   : "var(--text-secondary)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "var(--radius-md)",
+              textWrap: "nowrap",
               cursor: "pointer",
             }}
             title="Sort by Last Login"
@@ -126,6 +135,7 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
                   : "var(--text-secondary)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "var(--radius-md)",
+              textWrap: "nowrap",
               cursor: "pointer",
             }}
             title="Sort by Remaining Storage"

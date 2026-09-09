@@ -1,6 +1,6 @@
 # Account & Storage Vault (Linux Native Desktop)
 
-An industrial-grade, standalone Linux desktop application built with **Electron**, **React 19**, **TypeScript**, **Vite**, and an **isolated SQLite database**. 
+An industrial-grade, standalone Linux desktop application built with **Electron**, **React 19**, **TypeScript**, **Vite**, and an **isolated SQLite database**.
 
 The application serves as a high-density, high-contrast account ledger and storage catalog manager designed for power users to catalog multiple remote accounts and track stored file metadata against a strict **6 GB storage quota** per account.
 
@@ -9,6 +9,7 @@ The application serves as a high-density, high-contrast account ledger and stora
 ## 📸 Design System & Palette: Modern Desktop Theme
 
 The application features a sleek design system supporting Dark and Light appearance modes:
+
 - **Scalable Radius System**: Modern border-radius tokens (`--radius-xs: 3px`, `--radius-sm: 4px`, `--radius-md: 6px`, `--radius-lg: 8px`, `--radius-full: 9999px`) applied cleanly to buttons, inputs, cards, badges, modal dialogs, and gauges.
 - **Rich Color Palette**:
   - **Primary & Accent**: Warm Terracotta / Rust (`#c23c10`, `#cb5332`, `#d3684b`, `#da7c61`, `#e18f78`, `#e8a28e`).
@@ -23,6 +24,7 @@ The application features a sleek design system supporting Dark and Light appeara
 ## 🚀 Key Features
 
 ### 1. Account Records Ledger
+
 - **Credentials & Metadata**: Tracks Username (email), Password (with 1-click clipboard copy and masked/unmasked toggle), and Last Login timestamp.
 - **Relative Last Login & Overdue Alerts**: Displays Last Login in human-friendly relative format (e.g. `Just now`, `20 days ago`, `1 month ago`, `2 years ago`). If an account has not been logged into for more than 1 month (>= 30 days), the label turns red (`var(--accent-danger)`) with a high-contrast `Relogin` badge alerting the user to re-authenticate.
 - **1-Click "Update to Now" Timestamp Refresh**: Beside the active account's Last Login indicator in the detail pane, an inline **"Update to Now"** action button allows users to immediately stamp the account's `lastLogin` timestamp to the latest current date & time. This immediately clears overdue relogin alerts, recalculates relative timestamps, updates SQLite persistence, and updates account sort ordering.
@@ -39,6 +41,7 @@ The application features a sleek design system supporting Dark and Light appeara
   - Automatically persists the user's preferred sidebar width across application reloads and restarts (`localStorage`).
 
 ### 2. Plain Text Storage Catalog (6 GB Quota Engine)
+
 - **Metadata-Only Architecture**: The application does **not** store heavy multi-gigabyte media on the local physical disk. It stores structured plain-text catalog records.
 - **Dynamic 6 GB Limit Tracking**:
   - Each account has a max storage amount of **6 GB** (`6,144 MB`).
@@ -47,6 +50,7 @@ The application features a sleek design system supporting Dark and Light appeara
   - Highlights high-contrast alert badges if recorded files exceed the 6 GB threshold.
 
 ### 3. Stored Data Cataloging & Dual Views
+
 - **Item Fields**:
   - `fileName`: Required file identifier (e.g. `linux-kernel-guide.mp4`).
   - `fileType`: Defaults to `mp4` (supports `mkv`, `zip`, `pdf`, `png`, `jpg`, etc.).
@@ -66,12 +70,18 @@ The application features a sleek design system supporting Dark and Light appeara
 - **In-Account Search**: Instant local filter by file name or notes within the active account.
 
 ### 4. 🔍 Special Feature: Cross-Account Global Search (`Ctrl+K`)
+
 - Allows users to search for stored data file names across **all accounts simultaneously**.
 - Immediately reveals **which account owns each data item** (`Stored in account: user@example.com`).
 - Provides a **1-click "Jump" action** that navigates directly into the target account and highlights the matching item.
 - Accessible from anywhere in the app via the top header or the `Ctrl+K` hotkey.
+- **Responsive Adaptive Search Bar**:
+  - On standard and wide window sizes (> 1100px), presents the full search bar button complete with search icon, text label (`Global Search Data...`), and hotkey pill (`Ctrl+K`).
+  - When the application window width is resized towards minimum width (`<= 1100px`, down to the `960px` minimum window width), the search bar intelligently collapses into a compact, centered 32x32px icon-only button (`<SearchIcon />`).
+  - Preserves accessibility with native `title` tooltip, `aria-label`, and keyboard focus ring while reclaiming ~210px of horizontal header space to ensure flexible, overflow-free layout at all window dimensions.
 
 ### 5. Standalone Isolated SQLite Database & JSON Backup
+
 - **Isolated Engine**: Powered by WebAssembly SQLite (`sql.js`), saving directly to `app-data/records.sqlite`.
 - **Zero Native Build Hassles**: Does not require native node-gyp C++ compilation, avoiding Linux ABI and glibc compatibility issues.
 - **Container-Like Isolation**: Kept self-contained within the application folder.
@@ -80,10 +90,10 @@ The application features a sleek design system supporting Dark and Light appeara
   - **Import**: Allows restoring or migrating data into SQLite with transactional consistency.
 
 ### 6. ⚙️ Theme Toggle & Dynamic Font Size Customization
+
 - **Dark & Light Mode**: Switch between High-Contrast Dark Monochrome and Clean High-Contrast Light Monochrome themes.
 - **Adjustable Font Size**: Choose between `Small (11px)`, `Medium (13px - Default)`, `Large (15px)`, and `X-Large (17px)` with real-time live preview.
 - **Persistent Preferences**: Preferences are saved and automatically restored across app restarts via SQLite `app_settings` storage.
-
 
 ---
 
@@ -183,15 +193,16 @@ CREATE INDEX IF NOT EXISTS idx_accounts_username ON accounts(username);
 
 ---
 
-
 ## 🛠 Getting Started (Step-by-Step)
 
 ### 1. Prerequisites
+
 - **Linux** (Debian, Ubuntu, Arch, Fedora, openSUSE, etc.)
 - **Node.js**: >= 20.0.0 (Node 24 recommended)
 - **npm**: >= 10.0.0
 
 ### 2. Installation
+
 ```bash
 # Clone or navigate to the project directory
 cd "/media/thura/DATA/My Folders/My Projects/electrons-projects"
@@ -201,34 +212,46 @@ npm install
 ```
 
 ### 3. Running in Development Mode
+
 Launch the application with live reloading for both React and Electron:
+
 ```bash
 npm run dev:electron
 ```
-*(Or run `npm run dev` to preview the React frontend in the browser at `http://localhost:5173`)*.
+
+_(Or run `npm run dev` to preview the React frontend in the browser at `http://localhost:5173`)_.
 
 ### 4. Running Automated Tests
+
 Run the comprehensive test suite (SQLite engine, 6 GB storage calculations, and Electron launch verification):
+
 ```bash
 npm test
 ```
 
 ### 5. Production Build
+
 Build both the Electron backend and the optimized React production bundle:
+
 ```bash
 npm run build
 ```
+
 The output will be placed in:
+
 - `dist-electron/` (Electron main, preload, and SQLite repositories)
 - `dist/` (Optimized React frontend assets)
 
 To launch the built application locally:
+
 ```bash
 npm start
 ```
 
 ### 6. Packaging & Linux AppImage Generation
+
 Generate a standalone, production-ready **Linux AppImage** with embedded WebAssembly SQLite and desktop icons:
+
 ```bash
 # Build code and compile the standalone Linux AppImage
 npm run build:appimage
@@ -238,10 +261,13 @@ npm run package
 ```
 
 The generated standalone AppImage is located in:
+
 - `release/PikVault-1.0.0.AppImage` (x86_64 ELF standalone executable)
 
 #### Running the AppImage on Linux
+
 Ensure execution permissions are set and launch the binary:
+
 ```bash
 # 1. Grant execution permission (if needed)
 chmod +x release/PikVault-1.0.0.AppImage
@@ -255,14 +281,17 @@ chmod +x release/PikVault-1.0.0.AppImage
 > When running the standalone AppImage, the application automatically persists the SQLite database to the user's standard XDG configuration directory:
 > `~/.config/account-vault-desktop/app-data/records.sqlite`
 > This ensures data survives application updates and never pollutes the working directory or fails when executed from read-only mounts.
-> 
+>
 > If you wish to run in **custom or portable mode**, set the `APP_DATA_DIR` environment variable before launching:
+>
 > ```bash
 > APP_DATA_DIR=/path/to/custom-storage ./release/PikVault-1.0.0.AppImage
 > ```
 
 ### 7. Standalone Folder (Self-Contained) ELF Binary Executable
+
 Generate a **100% Self-Contained, Standalone Distribution Directory** with native ELF 64-bit binary executable, dynamic shared libraries (`.so`), bundled Chromium & Electron runtime, and portable WebAssembly SQLite engine:
+
 ```bash
 # 1. Build the standalone directory
 npm run build:standalone
@@ -275,6 +304,7 @@ npm run build:archive
 ```
 
 #### Standalone Folder Layout (`release/PikVault-linux-x64/`):
+
 ```
 release/PikVault-linux-x64/
 ├── PikVault                  # Primary 64-bit ELF binary executable
@@ -293,7 +323,9 @@ release/PikVault-linux-x64/
 ```
 
 #### Rebuilding After Code Updates or Bug Fixes
+
 Whenever you fix a bug or add a new feature, run this single automated command:
+
 ```bash
 # 1. (Recommended) Run automated unit and integration tests
 npm test
@@ -303,13 +335,16 @@ npm run build:standalone
 ```
 
 This single command automatically executes:
+
 1. `tsc -p tsconfig.electron.json` — Compiles Electron backend TypeScript (`dist-electron/`)
 2. `vite build` — Bundles React 19 frontend into optimized assets (`dist/`)
 3. `electron-builder --linux dir` — Packages Linux runtime, ELF binary, and extracts WebAssembly SQLite
 4. `node ./scripts/post-standalone.mjs` — Syncs into `release/PikVault-linux-x64/`, configures `.portable` storage mode, sets execution permissions, and attaches desktop entries and icon assets.
 
 #### Running the Standalone Folder Executable
+
 Navigate into the standalone directory and run either the launcher or the ELF executable directly:
+
 ```bash
 cd release/PikVault-linux-x64
 
@@ -324,12 +359,14 @@ chmod +x PikVault
 > [!NOTE]
 > **Zero-Install Portability (Self-Contained Mode):**
 > Because the folder contains the `.portable` marker file, the application operates in **fully self-contained mode**:
+>
 > - SQLite Database: `release/PikVault-linux-x64/data/app-data/records.sqlite`
 > - Cache & Web State: `release/PikVault-linux-x64/data/user-data/`
 >
 > You can copy or move the entire `PikVault-linux-x64` folder to a USB drive or any Linux workstation (Ubuntu, Debian, Fedora, Arch, openSUSE) — **no Node.js, npm, or system dependencies required**.
 >
 > To switch to standard system storage (`~/.config/account-vault-desktop`), delete `.portable` or execute:
+>
 > ```bash
 > ./PikVault --no-portable
 > ```
@@ -338,11 +375,11 @@ chmod +x PikVault
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action |
-| :--- | :--- |
-| `Ctrl + K` / `Cmd + K` | Open Global Cross-Account Data Search |
-| `Escape` | Close any active modal dialog |
-| `Enter` | Submit current form (Account / Stored Item) |
+| Shortcut               | Action                                      |
+| :--------------------- | :------------------------------------------ |
+| `Ctrl + K` / `Cmd + K` | Open Global Cross-Account Data Search       |
+| `Escape`               | Close any active modal dialog               |
+| `Enter`                | Submit current form (Account / Stored Item) |
 
 ---
 
@@ -366,3 +403,4 @@ The project was constructed following a structured, step-by-step milestone workf
 14. `feat(accounts): require user confirmation before committing account edits or updating last login to now`
 15. `feat(layout): implement interactive resizable sidebar with min-max constraints and width persistence`
 16. `refactor(layout): extract useResizableSidebar custom hook for modular split-pane resizing and maintenance`
+17. `feat(layout): add responsive auto-collapsing global search bar in AppHeader for compact and minimum window widths`
