@@ -1,8 +1,8 @@
 # Account & Storage Vault (PikVault Desktop)
 
-An industrial-grade, cross-platform standalone desktop application built with **Electron**, **React 19**, **TypeScript**, **Vite**, and an **isolated WebAssembly SQLite database**.
+**PikVault** is a privacy-first, local-first desktop app for managing accounts and cataloging stored files. It allows you to organize account credentials, record metadata for uploaded files (file names, sizes, download links, and notes), and track remaining storage quotas across all your accounts in a single offline workspace.
 
-**PikVault** serves as a high-density, privacy-focused account ledger and digital storage catalog manager designed for power users who manage multiple remote accounts, partitioned cloud storage tiers, and large digital asset collections across **Linux** and **Windows**.
+**PikVault** ဟာ privacy ကို အဓိကထားပြီး မိမိ Local စက်ထဲမှာတင် offline တိုက်ရိုက် အလုပ်လုပ်နိုင်တဲ့ (local-first) account ledger နဲ့ digital storage catalog management tool တစ်ခု ဖြစ်ပါတယ်။ မတူညီတဲ့ Cloud platform တွေမှာ တင်ထားတဲ့ ဖိုင် record ဒေတာတွေကို သက်ဆိုင်ရာ အကောင့် credential တွေနဲ့အတူ၊ လက်ကျန် storage quota တွေကိုပါ တစ်နေရာတည်းမှာ စနစ်တကျ မှတ်တမ်းတင် track လုပ်နိုင်ဖို့ ဖန်တီးထားတာ ဖြစ်ပါတယ်။
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/1b0f02a6-e1cf-4feb-bccc-8a2082a0a220" alt="PikVault Desktop Main Account Ledger View" width="100%" />
@@ -14,43 +14,54 @@ An industrial-grade, cross-platform standalone desktop application built with **
 
 ---
 
-## 🌟 General Overview & Purpose
+## Overview & Architecture Concepts
 
-### What Does the Application Do?
-Modern power users frequently distribute files, media archives, backups, and datasets across multiple cloud services, object storage buckets, and tiered free/premium accounts. Keeping track of credentials, stored asset locations, and account quota limits manually is tedious and error-prone.
+Managing multiple cloud accounts, segmented backup drives, and remote assets often leads to scattered spreadsheets and forgotten credentials. PikVault solves this with two foundational concepts:
 
-**PikVault** provides a unified, 100% offline control plane that:
-1. **Tracks Multi-Account Credentials & Activity**: Organizes all your accounts in a structured ledger with integrated cryptographic password generation, 1-click clipboard copying, and automated login freshness tracking (with overdue re-login alerts for inactive accounts).
-2. **Catalogs Stored Data Without Heavy Disk Overhead**: Uses a lightweight **metadata-only architecture** to record file names, file sizes, format types, download/mirror links, notes, and thumbnail preview URLs without needing to store heavy multi-gigabyte media locally on your computer.
-3. **Monitors Strict Per-Account Storage Quotas (e.g., 6 GB Tier Limits)**: Dynamically sums up stored file weights for each account in real time, displaying exact remaining storage capacity and visual warning gauges before an account overflows its allocated threshold.
-4. **Enables Instant Cross-Account Global Search (`Ctrl+K`)**: Rapidly searches stored file records across *every* registered account simultaneously, identifying which account owns a specific file and providing a 1-click jump into the target account.
-5. **Guarantees 100% Offline Privacy & Portability**: Operates completely local-first with zero telemetry and zero external cloud database dependencies. Data is stored in an isolated SQLite database (`records.sqlite`) with full portable mode support, runnable straight from USB flash drives.
-
-### What Is the Application Used For? (Target Use Cases)
-- **Multi-Account Cloud Storage Partitioning**: Power users who split backups, media libraries, dataset archives, or software releases across multiple cloud accounts (e.g., Google Drive, MEGA, Proton Drive, OneDrive, Nextcloud, custom VPS buckets) and need to monitor capacity against free-tier storage limits (e.g., 6 GB quotas).
-- **Centralized Digital Asset Indexing**: Creating a fast, searchable index of where specific files, download mirrors, and resources live across the web without having to log into multiple services just to find an asset.
-- **Account Maintenance & Expiration Prevention**: Monitoring last-login timestamps across numerous secondary accounts to ensure they do not get pruned or suspended due to inactivity.
-- **Air-Gapped / Portable Data Inventory**: Maintaining a private, portable inventory of software assets, client deliverables, or credential ledgers on a self-contained USB stick across Linux workstations and Windows machines.
+1. **Metadata-Only Indexing**: PikVault does not download or store heavy media files locally. It indexes filenames, sizes, thumbnail links, external mirrors, and notes as lightweight structured records.
+2. **Deterministic Partition Tracking**: Configured with a custom storage quota tracking engine per account, making it simple to monitor distributed cloud allocations without manual math.
+3. **Zero-Dependency Local Persistence**: Built strictly for offline, local-first environments. All records, credentials, and catalog indexes stay isolated on your local disk with zero external API calls, zero native daemon dependencies, and zero setup friction.
 
 ---
 
-## 📸 Design System & Palette: Modern Desktop Theme
+## User Features
 
-The application features a sleek design system supporting Dark and Light appearance modes:
+### Account Ledger & Health
 
-- **Scalable Radius System**: Modern border-radius tokens (`--radius-xs: 3px`, `--radius-sm: 4px`, `--radius-md: 6px`, `--radius-lg: 8px`, `--radius-full: 9999px`) applied cleanly to buttons, inputs, cards, badges, modal dialogs, and gauges.
-- **Rich Color Palette**:
-  - **Primary & Accent**: Warm Terracotta / Rust (`#c23c10`, `#cb5332`, `#d3684b`, `#da7c61`, `#e18f78`, `#e8a28e`).
-  - **Dark Surfaces**: Rich deep darks (`#121212`, `#252525`, `#393939`, `#4f4f4f`) with warm tonal surfaces (`#221715`, `#352a28`).
-  - **Light Surfaces**: Clean warm tones (`#ffffff`, `#f8f6f4`, `#f3ede7`, `#e8ded5`).
-  - **Semantic Accents**: Success (`#52ff52`), Warning (`#ffde38`), Danger (`#ff3030`), Info (`#3db5ff`).
-- **Unified Clean Typography**: Modern single font family (**Space Grotesk** and system sans fallback) used consistently across the entire application with scalable font sizing presets.
-- **Natural Text Styling**: Title and sentence casing across buttons, dialogs, headers, and badges.
+- **Credential Management**: Securely track usernames, masked passwords with one-click clipboard copying, and authentication metadata.
+- **Relogin Status & Stale Account Alerts**: Converts timestamps to relative indicators (`Just now`, `20 days ago`, `1 month ago`). Accounts inactive for 30 days or longer trigger a prominent red warning and a `Relogin` badge.
+- **One-Click Activity Refresh**: Quickly refresh an account's last login to the current date and time directly from the detail pane with safety confirmation prompts.
+- **Integrated Password Generator**: Generate cryptographically strong random passwords inside the editor modal.
+- **Fast Sorting & Filtering**: Filter accounts instantly by name, email, last login date, or remaining storage capacity.
+
+### Storage Cataloging
+
+- **Allocation Gauges**: Displays remaining space against account storage limits (for example, `4.25 GB remain of 6 GB`).
+- **Threshold Warnings**: Highlights visual warning badges when an account reaches or exceeds its allocation ceiling.
+- **Rich Asset Records**: Catalog assets with properties including filename, format extension, size in megabytes, external mirror links, notes, and preview images.
+
+### Dual Catalog Views
+
+- **Compact List View**: Dense table layout with sortable columns, responsive text truncation with full hover tooltips, and horizontal/vertical scroll boundaries.
+- **Uniform Card Grid View**: Fixed 350px card heights with 140px media preview headers, two-line text clamping, and footer action bars to eliminate layout shifts.
+- **In-Account Search**: Quickly locate records inside the currently active account by filename or notes.
+
+### Global Cross-Account Search (`Ctrl+K`)
+
+- Search filenames across every account simultaneously from a single modal.
+- Shows ownership details immediately (`Stored in account: user@example.com`).
+- Includes a direct "Jump" button to open the target account and highlight the matched record.
+- Responsive top-bar search triggers automatically collapse into a compact 32x32px icon button on smaller viewports (960px to 1100px) to prevent UI overflow.
+
+### Customization & Interface Controls
+
+- **Adaptive Themes**: High-contrast Dark and Light modes using a warm terracotta color system.
+- **Dynamic Text Sizing**: Interactive interface font scaling (`Small`, `Medium`, `Large`, `X-Large`).
+- **Flexible Workspace**: Drag-and-drop resizable sidebar with keyboard accessibility and persistent state storage.
 
 ---
 
-## 🚀 Key Features
-
+## Developer Guide & Technical Details
 
 ### 1. Account Records Ledger
 
@@ -69,14 +80,14 @@ The application features a sleek design system supporting Dark and Light appeara
   - Keyboard accessible (`Left`/`Right` arrow keys adjust by 10px, `Home`/`End` to boundaries) with double-click reset to default width (`380px`).
   - Automatically persists the user's preferred sidebar width across application reloads and restarts (`localStorage`).
 
-### 2. Plain Text Storage Catalog (6 GB Quota Engine)
+### 2. Plain Text Storage Catalog
 
 - **Metadata-Only Architecture**: The application does **not** store heavy multi-gigabyte media on the local physical disk. It stores structured plain-text catalog records.
-- **Dynamic 6 GB Limit Tracking**:
-  - Each account has a max storage amount of **6 GB** (`6,144 MB`).
+- **Dynamic Limit Tracking**:
+  - Each account has a max storage amount (e.g., `6,144 MB`).
   - Total file size of each item inside the account is aggregated in real time.
   - Computes exact remaining storage (e.g., `4.25 GB remain of 6 GB`).
-  - Highlights high-contrast alert badges if recorded files exceed the 6 GB threshold.
+  - Highlights high-contrast alert badges if recorded files exceed the threshold.
 
 ### 3. Stored Data Cataloging & Dual Views
 
@@ -98,7 +109,7 @@ The application features a sleek design system supporting Dark and Light appeara
     - **Responsive Link Trays & Action Bars**: Compact external link pills and pinned action buttons (Edit, Delete) in the card footer.
 - **In-Account Search**: Instant local filter by file name or notes within the active account.
 
-### 4. 🔍 Special Feature: Cross-Account Global Search (`Ctrl+K`)
+### 4. Cross-Account Global Search (`Ctrl+K`)
 
 - Allows users to search for stored data file names across **all accounts simultaneously**.
 - Immediately reveals **which account owns each data item** (`Stored in account: user@example.com`).
@@ -109,7 +120,7 @@ The application features a sleek design system supporting Dark and Light appeara
   - When the application window width is resized towards minimum width (`<= 1100px`, down to the `960px` minimum window width), the search bar intelligently collapses into a compact, centered 32x32px icon-only button (`<SearchIcon />`).
   - Preserves accessibility with native `title` tooltip, `aria-label`, and keyboard focus ring while reclaiming ~210px of horizontal header space to ensure flexible, overflow-free layout at all window dimensions.
 
-### 5. Standalone Isolated SQLite Database & JSON Backup
+### 5. Standalone Isolated Database & JSON Backup
 
 - **Isolated Engine**: Powered by WebAssembly SQLite (`sql.js`), saving directly to `app-data/records.sqlite`.
 - **Zero Native Build Hassles**: Does not require native node-gyp C++ compilation, avoiding Linux ABI/glibc issues and Windows MSVC build tool dependencies.
@@ -118,15 +129,27 @@ The application features a sleek design system supporting Dark and Light appeara
   - **Export**: Generates a portable, versioned JSON snapshot containing all accounts and items.
   - **Import**: Allows restoring or migrating data into SQLite with transactional consistency.
 
-### 6. ⚙️ Theme Toggle & Dynamic Font Size Customization
+### 6. Theme Toggle & Dynamic Font Size Customization
 
 - **Dark & Light Mode**: Switch between High-Contrast Dark Monochrome and Clean High-Contrast Light Monochrome themes.
 - **Adjustable Font Size**: Choose between `Small (11px)`, `Medium (13px - Default)`, `Large (15px)`, and `X-Large (17px)` with real-time live preview.
 - **Persistent Preferences**: Preferences are saved and automatically restored across app restarts via SQLite `app_settings` storage.
 
+### Design Tokens
+
+- **Border Radii**:
+  - Small elements / badges: `--radius-xs: 3px`, `--radius-sm: 4px`
+  - Cards / inputs / buttons: `--radius-md: 6px`, `--radius-lg: 8px`
+  - Pills / circular controls: `--radius-full: 9999px`
+- **Color Tokens**:
+  - Primary / Rust Accent: `#c23c10`, `#cb5332`, `#d3684b`
+  - Dark Surfaces: `#121212`, `#221715`, `#252525`, `#352a28`
+  - Light Surfaces: `#ffffff`, `#f8f6f4`, `#f3ede7`, `#e8ded5`
+  - Semantic: Danger (`#ff3030`), Warning (`#ffde38`), Success (`#52ff52`),
+
 ---
 
-## 🏛 Architecture & Codebase Structure
+## Architecture & Codebase Structure
 
 Built following **SOLID**, **DRY**, and **KISS** software engineering principles. Components are small, modular, and focused on single responsibilities.
 
@@ -182,7 +205,7 @@ Built following **SOLID**, **DRY**, and **KISS** software engineering principles
 
 ---
 
-## 🗄 Database Schema
+## Database Schema
 
 ```sql
 CREATE TABLE IF NOT EXISTS accounts (
@@ -222,17 +245,18 @@ CREATE INDEX IF NOT EXISTS idx_accounts_username ON accounts(username);
 
 ---
 
-## 📥 End-User Installation Guide (Linux & Windows)
+## 📥 End-User Installation Guide (Linux & Windows & Mac)
 
 Download the latest version for your Operating System from **[GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases)**.
 
 ---
 
-### 🐧 1. Installing & Running on Linux
+### 1. Installing & Running on Linux
 
 PikVault supports all major Linux distributions (Ubuntu, Debian, Fedora, Arch, openSUSE, etc.).
 
 #### Option A: AppImage (Recommended)
+
 1. **Download**: Download `PikVault-1.0.0.AppImage` from [GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases).
 2. **Make Executable**: Open your terminal in your Download folder and grant execution permission:
    ```bash
@@ -242,9 +266,10 @@ PikVault supports all major Linux distributions (Ubuntu, Debian, Fedora, Arch, o
    ```bash
    ./PikVault-1.0.0.AppImage
    ```
-> **Data Storage Location**: Automatically saves database records to `~/.config/account-vault-desktop/app-data/records.sqlite`.
+   > **Data Storage Location**: Automatically saves database records to `~/.config/account-vault-desktop/app-data/records.sqlite`.
 
 #### Option B: Standalone Portable Folder (Zero-Install / USB Stick)
+
 1. **Download & Extract**: Download `account-vault-desktop-1.0.0.tar.gz` and extract it:
    ```bash
    tar -xzf account-vault-desktop-1.0.0.tar.gz
@@ -254,32 +279,34 @@ PikVault supports all major Linux distributions (Ubuntu, Debian, Fedora, Arch, o
    ```bash
    ./start.sh
    ```
-   *(Or execute `./PikVault` directly).*
-> **Data Storage Location**: Keeps all database records isolated inside `PikVault-linux-x64/data/app-data/records.sqlite`.
+   _(Or execute `./PikVault` directly)._
+   > **Data Storage Location**: Keeps all database records isolated inside `PikVault-linux-x64/data/app-data/records.sqlite`.
 
 ---
 
-### 🪟 2. Installing & Running on Windows
+### 2. Installing & Running on Windows
 
 PikVault supports Windows 10 and Windows 11 (64-bit).
 
 #### Option A: Standard Setup Installer (.exe)
+
 1. **Download**: Download `PikVault-Setup-1.0.0.exe` from [GitHub Releases](https://github.com/codewiththura/PikVault-Desktop/releases).
 2. **Install**: Double-click `PikVault-Setup-1.0.0.exe` to start the setup wizard.
 3. **Follow Wizard**: Select your installation directory and choose whether to create Desktop and Start Menu shortcuts.
 4. **Launch**: Open **PikVault** from your Windows Start Menu or Desktop shortcut.
-> **Data Storage Location**: Saves database & user data in `%APPDATA%\account-vault-desktop\app-data\records.sqlite`.
+   > **Data Storage Location**: Saves database & user data in `%APPDATA%\account-vault-desktop\app-data\records.sqlite`.
 
 #### Option B: Portable Executable / Zip (USB / Zero-Install)
+
 1. **Download**: Download `PikVault-1.0.0-portable.exe` (or `PikVault-1.0.0-win.zip`).
 2. **Launch**:
    - For `PikVault-1.0.0-portable.exe`: Double-click the `.exe` file directly.
    - For `PikVault-1.0.0-win.zip`: Extract the `.zip` archive and double-click `PikVault.exe`.
-> **Data Storage Location**: Automatically creates a `data\app-data\` folder next to the executable to keep all data self-contained.
+     > **Data Storage Location**: Automatically creates a `data\app-data\` folder next to the executable to keep all data self-contained.
 
 ---
 
-### 🍎 3. Installing & Running on macOS
+### 3. Installing & Running on macOS
 
 PikVault supports macOS (Intel & Apple Silicon Macs).
 
@@ -288,7 +315,7 @@ PikVault supports macOS (Intel & Apple Silicon Macs).
    - Unzip `PikVault-1.0.0-mac.zip` and move `PikVault.app` into your **Applications** folder.
 3. **First Launch (macOS Security Gatekeeper)**:
    - On modern macOS versions, right-click `PikVault.app` in Applications and select **Open** (or execute `xattr -cr /Applications/PikVault.app` in terminal if Gatekeeper prompts an unverified developer warning).
-> **Data Storage Location**: Saves database records in `~/Library/Application Support/account-vault-desktop/app-data/records.sqlite`.
+     > **Data Storage Location**: Saves database records in `~/Library/Application Support/account-vault-desktop/app-data/records.sqlite`.
 
 ---
 
@@ -472,7 +499,7 @@ chmod +x PikVault
 
 ---
 
-### 8. 🪟 Windows Releases (.exe Installer, Portable .exe, & Standalone Zip)
+### 8. Windows Releases (.exe Installer, Portable .exe, & Standalone Zip)
 
 The project supports cross-compiling first-class **Windows releases** directly from Linux. Because the SQLite database engine utilizes WebAssembly (`sql.js`), there are no native C++ Windows compiler toolchains or `node-gyp` hurdles.
 
@@ -515,13 +542,14 @@ npm run build:cross-platform
 > [!NOTE]
 > **Prerequisite for Building `.exe` Installers on Linux:**
 > While unpacked Windows binaries and `.zip` archives build natively on Linux, generating single-file `.exe` installers (`nsis` and `portable`) utilizes Windows PE and NSIS tools which require **Wine** on Linux:
+>
 > - **Ubuntu / Debian**: `sudo apt install wine wine64`
 > - **Arch Linux**: `sudo pacman -S wine`
 > - **Fedora**: `sudo dnf install wine`
 
 ---
 
-### 9. 🍎 macOS Releases (.dmg Installer & Standalone .zip)
+### 9. macOS Releases (.dmg Installer & Standalone .zip)
 
 The project supports cross-compiling **macOS distribution packages** (`.dmg` installer and `.zip` application archive) directly on Linux.
 
@@ -589,5 +617,3 @@ The project was constructed following a structured, step-by-step milestone workf
 17. `feat(layout): add responsive auto-collapsing global search bar in AppHeader for compact and minimum window widths`
 18. `feat(windows): configure Windows release generation with NSIS setup, portable exe, and cross-platform builds`
 19. `feat(mac): configure macOS distribution packaging (.dmg installer and zip archive)`
-
-
