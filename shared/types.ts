@@ -30,7 +30,7 @@ export interface Account {
   itemCount?: number;
 }
 
-export type AccountSortField = 'name' | 'lastLogin' | 'storageRemain';
+export type AccountSortField = 'name' | 'lastLogin' | 'storageRemain' | 'createdAt';
 export type SortDirection = 'asc' | 'desc';
 
 export interface AccountSortConfig {

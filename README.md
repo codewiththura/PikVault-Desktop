@@ -32,7 +32,7 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 - **Relogin Status & Stale Account Alerts**: Converts timestamps to relative indicators (`Just now`, `20 days ago`, `1 month ago`). Accounts inactive for 30 days or longer trigger a prominent red warning and a `Relogin` badge.
 - **One-Click Activity Refresh**: Quickly refresh an account's last login to the current date and time directly from the detail pane with safety confirmation prompts.
 - **Integrated Password Generator**: Generate cryptographically strong random passwords inside the editor modal.
-- **Fast Sorting & Filtering**: Filter accounts instantly by name, email, last login date, or remaining storage capacity.
+- **Fast Sorting & Filtering**: Filter accounts instantly by name, email, last login date, remaining storage capacity, or created date.
 
 ### Storage Cataloging
 
@@ -72,7 +72,7 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 - **Auto Password Generator**: Integrated cryptographic random password generator.
 - **Sorting & Filtering**:
   - Instant search by account name or email.
-  - Multi-directional sorting by **Name** (`asc`/`desc`), **Last login**, and **Storage Remaining**.
+  - Multi-directional sorting by **Name** (`asc`/`desc`), **Last login**, **Storage Remaining**, and **Created Date**.
 - **Interactive Resizable Sidebar (`useResizableSidebar` Hook)**:
   - Managed by a clean, modular custom React hook ([`useResizableSidebar.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/hooks/useResizableSidebar.ts)) isolating width clamping, drag tracking, and window event listeners.
   - Drag-and-drop splitter divider between the Account Ledger sidebar and the Detail Pane.
@@ -613,3 +613,4 @@ The project was constructed following a structured, step-by-step milestone workf
 17. `feat(layout): add responsive auto-collapsing global search bar in AppHeader for compact and minimum window widths`
 18. `feat(windows): configure Windows release generation with NSIS setup, portable exe, and cross-platform builds`
 19. `feat(mac): configure macOS distribution packaging (.dmg installer and zip archive)`
+20. `feat(accounts): add created date sort button and sorting logic for account ledger`

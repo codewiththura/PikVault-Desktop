@@ -65,7 +65,7 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          flexWrap: "wrap",
+          flexWrap: "nowrap",
           gap: "4px",
         }}
       >
@@ -141,6 +141,28 @@ export const AccountSortBar: React.FC<AccountSortBarProps> = ({
             title="Sort by Remaining Storage"
           >
             {getSortLabel("storageRemain", "Storage")}
+          </button>
+
+          <button
+            onClick={() => setSorting("createdAt")}
+            style={{
+              padding: "3px 8px",
+              background:
+                sortField === "createdAt"
+                  ? "var(--accent-white)"
+                  : "transparent",
+              color:
+                sortField === "createdAt"
+                  ? "var(--accent-black)"
+                  : "var(--text-secondary)",
+              border: "1px solid var(--border-subtle)",
+              borderRadius: "var(--radius-md)",
+              textWrap: "nowrap",
+              cursor: "pointer",
+            }}
+            title="Sort by Created Date"
+          >
+            {getSortLabel("createdAt", "Created")}
           </button>
         </div>
 

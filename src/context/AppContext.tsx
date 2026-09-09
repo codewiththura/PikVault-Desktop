@@ -315,6 +315,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const remA = a.remainingGB ?? 6;
         const remB = b.remainingGB ?? 6;
         comparison = remA - remB;
+      } else if (sortField === 'createdAt') {
+        const timeA = new Date(a.createdAt || 0).getTime();
+        const timeB = new Date(b.createdAt || 0).getTime();
+        comparison = timeA - timeB;
       }
       return sortDirection === 'asc' ? comparison : -comparison;
     });
