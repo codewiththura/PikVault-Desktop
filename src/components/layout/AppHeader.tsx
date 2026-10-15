@@ -1,6 +1,8 @@
 import React from "react";
 import { useApp } from "../../context/AppContext";
 import { Button } from "../common/Button";
+import { ConfirmModal } from "../common/ConfirmModal";
+import { NotificationModal } from "../common/NotificationModal";
 import {
   SearchIcon,
   DownloadIcon,
@@ -27,27 +29,74 @@ export const AppHeader: React.FC = () => {
   );
   const totalUsedGB = (totalUsedMB / 1024).toFixed(2);
 
+  const [isConfirmImportOpen, setIsConfirmImportOpen] = React.useState(false);
+  const [notification, setNotification] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
+
   const handleExport = async () => {
-    const res = await exportBackup();
-    if (res.success && res.filePath) {
-      alert(`Backup exported successfully to:\n${res.filePath}`);
-    } else if (res.error && res.error !== "Cancelled") {
-      setError(`Backup export error: ${res.error}`);
+    try {
+      const res = await exportBackup();
+      if (res.success && res.filePath) {
+        setNotification({
+          isOpen: true,
+          title: "Backup Exported Successfully",
+          message: `Your account and data records have been exported to:\n${res.filePath}`,
+          type: "success",
+        });
+      } else if (res.error && res.error !== "Cancelled") {
+        setError(`Backup export error: ${res.error}`);
+        setNotification({
+          isOpen: true,
+          title: "Export Failed",
+          message: `Could not export backup: ${res.error}`,
+          type: "error",
+        });
+      }
+    } catch (err: any) {
+      setNotification({
+        isOpen: true,
+        title: "Export Error",
+        message: err?.message || "An unexpected error occurred during export.",
+        type: "error",
+      });
     }
   };
 
-  const handleImport = async () => {
-    if (
-      confirm(
-        "Importing will merge accounts and data from backup JSON. Continue?",
-      )
-    ) {
+  const handleOpenImport = () => {
+    setIsConfirmImportOpen(true);
+  };
+
+  const executeImport = async () => {
+    setIsConfirmImportOpen(false);
+    try {
       const res = await importBackup();
       if (res.success) {
-        alert(`Successfully imported ${res.importedCount} records!`);
+        setNotification({
+          isOpen: true,
+          title: "Import Successful",
+          message: `Successfully imported ${res.importedCount} records into your account vault!`,
+          type: "success",
+        });
       } else if (res.error && res.error !== "Cancelled") {
         setError(`Backup import error: ${res.error}`);
+        setNotification({
+          isOpen: true,
+          title: "Import Failed",
+          message: `Could not import backup: ${res.error}`,
+          type: "error",
+        });
       }
+    } catch (err: any) {
+      setNotification({
+        isOpen: true,
+        title: "Import Error",
+        message: err?.message || "An unexpected error occurred during import.",
+        type: "error",
+      });
     }
   };
 
@@ -161,7 +210,7 @@ export const AppHeader: React.FC = () => {
         <Button
           variant="secondary"
           icon={<UploadIcon size={13} />}
-          onClick={handleImport}
+          onClick={handleOpenImport}
           title="Import database records from JSON backup"
         >
           Import
@@ -176,6 +225,24 @@ export const AppHeader: React.FC = () => {
           Settings
         </Button>
       </div>
+      <ConfirmModal
+        isOpen={isConfirmImportOpen}
+        onClose={() => setIsConfirmImportOpen(false)}
+        onConfirm={executeImport}
+        title="Import Backup Data"
+        message="Importing will merge accounts and cataloged stored items from your backup JSON file into the local database. Continue?"
+        confirmLabel="Select File & Import"
+      />
+
+      {notification && (
+        <NotificationModal
+          isOpen={notification.isOpen}
+          onClose={() => setNotification(null)}
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+        />
+      )}
     </header>
   );
 };

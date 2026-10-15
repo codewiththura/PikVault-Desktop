@@ -5,6 +5,7 @@ import { StatusBar } from "./components/layout/StatusBar";
 import { AccountSortBar } from "./components/accounts/AccountSortBar";
 import { AccountList } from "./components/accounts/AccountList";
 import { AccountModal } from "./components/accounts/AccountModal";
+import { ConfirmModal } from "./components/common/ConfirmModal";
 import { ItemFilterBar } from "./components/items/ItemFilterBar";
 import { ItemList } from "./components/items/ItemList";
 import { ItemGrid } from "./components/items/ItemGrid";
@@ -12,18 +13,26 @@ import { ItemModal } from "./components/items/ItemModal";
 import { GlobalSearchModal } from "./components/search/GlobalSearchModal";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { ImagePreviewModal } from "./components/common/ImagePreviewModal";
+import { CopyItemModal } from "./components/items/CopyItemModal";
+import { NotificationModal } from "./components/common/NotificationModal";
 import { StorageGauge } from "./components/common/StorageGauge";
-import { RefreshCwIcon } from "./components/common/Icons";
+import { RefreshCwIcon, PinIcon } from "./components/common/Icons";
+import { DropOverlay } from "./components/items/DropOverlay";
+import { DropFileConfirmModal } from "./components/items/DropFileConfirmModal";
+import { useFileDrop } from "./hooks/useFileDrop";
 import { useResizableSidebar } from "./hooks/useResizableSidebar";
-import { Account, StoredItem } from "./types";
+import { Account, StoredItem, DroppedFileInfo } from "./types";
 import {
   formatDateTime,
   formatRelativeTime,
   isOlderThanDays,
+  todayString,
 } from "./utils/date";
 
 export const App: React.FC = () => {
   const {
+    accounts,
+    selectedAccountId,
     selectedAccount,
     filteredItems,
     itemViewMode,
@@ -32,18 +41,101 @@ export const App: React.FC = () => {
     setIsSettingsModalOpen,
     createAccount,
     updateAccount,
+    deleteAccount,
+    togglePinAccount,
     createItem,
     updateItem,
     deleteItem,
+    copyItemToAccount,
   } = useApp();
 
   // Account Modal State
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
 
+  // Deletion & Action Confirmation States
+  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<StoredItem | null>(null);
+  const [isConfirmUpdateLoginOpen, setIsConfirmUpdateLoginOpen] =
+    useState(false);
+
   // Item Modal State
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<StoredItem | null>(null);
+
+  // Copy Item State
+  const [itemToCopy, setItemToCopy] = useState<StoredItem | null>(null);
+
+  // Focus-Safe In-DOM Notification State
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
+
+  // Dropped Files Confirmation State
+  const [droppedFilesToConfirm, setDroppedFilesToConfirm] = useState<DroppedFileInfo[]>([]);
+  const [isDropConfirmOpen, setIsDropConfirmOpen] = useState(false);
+
+  const handleFilesDropped = (files: DroppedFileInfo[]) => {
+    if (!files || files.length === 0) return;
+    setDroppedFilesToConfirm(files);
+    setIsDropConfirmOpen(true);
+  };
+
+  const executeAddDroppedFiles = async ({
+    accountId,
+    files,
+  }: {
+    accountId: string;
+    files: Array<{
+      fileName: string;
+      fileSizeMB: number;
+      fileType: string;
+      note?: string;
+    }>;
+  }) => {
+    const targetAcc = accounts.find((a) => a.id === accountId);
+    const targetName = targetAcc ? targetAcc.username : "the account";
+
+    try {
+      for (const file of files) {
+        await createItem({
+          accountId,
+          fileName: file.fileName,
+          fileSizeMB: file.fileSizeMB,
+          fileType: file.fileType,
+          note: file.note,
+          updatedDate: todayString(),
+        });
+      }
+
+      setNotification({
+        isOpen: true,
+        title: files.length > 1 ? "Files Cataloged Successfully" : "File Cataloged Successfully",
+        message:
+          files.length > 1
+            ? `Successfully cataloged ${files.length} files into account "${targetName}".`
+            : `Successfully cataloged "${files[0].fileName}" (${files[0].fileSizeMB} MB) into account "${targetName}".`,
+        type: "success",
+      });
+      setDroppedFilesToConfirm([]);
+      setIsDropConfirmOpen(false);
+    } catch (err: any) {
+      setNotification({
+        isOpen: true,
+        title: "Cataloging Failed",
+        message: err?.message || "Could not save the dropped file to the selected account.",
+        type: "error",
+      });
+    }
+  };
+
+  const { isDragging, dropProps } = useFileDrop({
+    onFilesDropped: handleFilesDropped,
+    enabled: true,
+  });
 
   // Image Preview Modal State
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
@@ -76,6 +168,33 @@ export const App: React.FC = () => {
     setIsItemModalOpen(true);
   };
 
+  const handleCopyItem = (item: StoredItem) => {
+    setItemToCopy(item);
+  };
+
+  const executeCopyItemToAccount = async (targetAccountId: string) => {
+    if (!itemToCopy) return;
+    try {
+      await copyItemToAccount(itemToCopy.id, targetAccountId);
+      const targetAcc = accounts.find((a) => a.id === targetAccountId);
+      const targetName = targetAcc ? targetAcc.username : "the target account";
+      setNotification({
+        isOpen: true,
+        title: "Media Copied Successfully",
+        message: `Successfully copied "${itemToCopy.fileName}" to account "${targetName}".`,
+        type: "success",
+      });
+      setItemToCopy(null);
+    } catch (err: any) {
+      setNotification({
+        isOpen: true,
+        title: "Copy Failed",
+        message: err?.message || "Could not copy media to the selected account.",
+        type: "error",
+      });
+    }
+  };
+
   const handleSaveItem = async (data: any) => {
     if (data.id) {
       await updateItem(data);
@@ -87,15 +206,14 @@ export const App: React.FC = () => {
   // Update Last Login to current datetime
   const [isUpdatingLastLogin, setIsUpdatingLastLogin] = useState(false);
 
-  const handleUpdateLastLoginToNow = async () => {
+  const handleOpenUpdateLastLoginConfirm = () => {
     if (!selectedAccount || isUpdatingLastLogin) return;
-    if (
-      !confirm(
-        `Are you sure you want to update the last login for account "${selectedAccount.username}" to the current datetime?`,
-      )
-    ) {
-      return;
-    }
+    setIsConfirmUpdateLoginOpen(true);
+  };
+
+  const executeUpdateLastLoginToNow = async () => {
+    if (!selectedAccount) return;
+    setIsConfirmUpdateLoginOpen(false);
     try {
       setIsUpdatingLastLogin(true);
       const nowIso = new Date().toISOString();
@@ -107,6 +225,22 @@ export const App: React.FC = () => {
       console.error("Failed to update last login to now:", err);
     } finally {
       setIsUpdatingLastLogin(false);
+    }
+  };
+
+  const executeDeleteAccount = async () => {
+    if (accountToDelete) {
+      const id = accountToDelete.id;
+      setAccountToDelete(null);
+      await deleteAccount(id);
+    }
+  };
+
+  const executeDeleteItem = async () => {
+    if (itemToDelete) {
+      const id = itemToDelete.id;
+      setItemToDelete(null);
+      await deleteItem(id);
     }
   };
 
@@ -154,7 +288,10 @@ export const App: React.FC = () => {
           }}
         >
           <AccountSortBar onAddAccount={handleOpenNewAccount} />
-          <AccountList onEditAccount={handleEditAccount} />
+          <AccountList
+            onEditAccount={handleEditAccount}
+            onDeleteAccount={setAccountToDelete}
+          />
         </aside>
 
         {/* Resizer Divider */}
@@ -186,6 +323,7 @@ export const App: React.FC = () => {
 
         {/* Right Detail Pane: Stored Data Catalog */}
         <main
+          {...dropProps}
           style={{
             flex: 1,
             display: "flex",
@@ -193,8 +331,15 @@ export const App: React.FC = () => {
             background: "var(--bg-canvas)",
             height: "100%",
             overflow: "hidden",
+            position: "relative",
           }}
         >
+          {/* Visual Drop Overlay */}
+          <DropOverlay
+            isVisible={isDragging}
+            targetAccountName={selectedAccount?.username}
+          />
+
           {selectedAccount ? (
             <>
               {/* Active Account Overview Banner */}
@@ -223,7 +368,6 @@ export const App: React.FC = () => {
                       gap: "8px",
                     }}
                   >
-                    <span style={{ color: "var(--text-muted)" }}>Account:</span>
                     <h3
                       style={{
                         color: "var(--text-primary)",
@@ -232,7 +376,42 @@ export const App: React.FC = () => {
                     >
                       {selectedAccount.username}
                     </h3>
+                    <button
+                      type="button"
+                      onClick={() => togglePinAccount(selectedAccount.id)}
+                      title={selectedAccount.isPinned ? "Unpin account from top" : "Pin account to top"}
+                      style={{
+                        background: selectedAccount.isPinned ? "var(--bg-tertiary)" : "transparent",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-xs)",
+                        color: selectedAccount.isPinned ? "var(--accent-warning, #f59e0b)" : "var(--text-muted)",
+                        cursor: "pointer",
+                        padding: "2px 6px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        fontSize: "var(--font-size-xs)",
+                        transition: "all var(--transition-fast)",
+                      }}
+                    >
+                      <PinIcon size={12} filled={Boolean(selectedAccount.isPinned)} />
+                      <span>{selectedAccount.isPinned ? "Pinned" : "Pin"}</span>
+                    </button>
                   </div>
+                  {selectedAccount.description && (
+                    <div
+                      style={{
+                        color: "var(--text-secondary)",
+                        fontSize: "var(--font-size-xs)",
+                        marginTop: "2px",
+                        lineHeight: 1.4,
+                        maxWidth: "600px",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {selectedAccount.description}
+                    </div>
+                  )}
                   <div
                     style={{
                       display: "flex",
@@ -267,7 +446,7 @@ export const App: React.FC = () => {
                     </span>
                     <button
                       type="button"
-                      onClick={handleUpdateLastLoginToNow}
+                      onClick={handleOpenUpdateLastLoginConfirm}
                       disabled={isUpdatingLastLogin}
                       style={{
                         background: "transparent",
@@ -320,7 +499,8 @@ export const App: React.FC = () => {
                     items={filteredItems}
                     highlightedItemId={highlightedItemId}
                     onEdit={handleEditItem}
-                    onDelete={deleteItem}
+                    onDelete={setItemToDelete}
+                    onCopy={handleCopyItem}
                     onPreviewImage={setPreviewImageUrl}
                   />
                 ) : (
@@ -328,7 +508,8 @@ export const App: React.FC = () => {
                     items={filteredItems}
                     highlightedItemId={highlightedItemId}
                     onEdit={handleEditItem}
-                    onDelete={deleteItem}
+                    onDelete={setItemToDelete}
+                    onCopy={handleCopyItem}
                     onPreviewImage={setPreviewImageUrl}
                   />
                 )}
@@ -400,10 +581,76 @@ export const App: React.FC = () => {
         onClose={() => setIsSettingsModalOpen(false)}
       />
 
+      {/* Focus-Safe In-DOM Confirmations */}
+      <ConfirmModal
+        isOpen={isConfirmUpdateLoginOpen}
+        onClose={() => setIsConfirmUpdateLoginOpen(false)}
+        onConfirm={executeUpdateLastLoginToNow}
+        title="Update Last Login"
+        message={`Are you sure you want to update the last login timestamp for account "${selectedAccount?.username || ""}" to the current datetime?`}
+        confirmLabel="Update to Now"
+      />
+
+      <ConfirmModal
+        isOpen={!!accountToDelete}
+        onClose={() => setAccountToDelete(null)}
+        onConfirm={executeDeleteAccount}
+        title="Delete Account Record"
+        message={`Are you sure you want to delete account "${accountToDelete?.username || ""}" and all its cataloged stored items? This action cannot be undone.`}
+        confirmLabel="Delete Account"
+        isDestructive
+      />
+
+      <ConfirmModal
+        isOpen={!!itemToDelete}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={executeDeleteItem}
+        title="Delete Stored Item"
+        message={`Are you sure you want to delete stored item "${itemToDelete?.fileName || ""}"?`}
+        confirmLabel="Delete Item"
+        isDestructive
+      />
+
       <ImagePreviewModal
         imageUrl={previewImageUrl}
         onClose={() => setPreviewImageUrl(null)}
       />
+
+      {/* Copy Media to Another Account Modal */}
+      {selectedAccount && itemToCopy && (
+        <CopyItemModal
+          isOpen={!!itemToCopy}
+          onClose={() => setItemToCopy(null)}
+          item={itemToCopy}
+          currentAccountId={selectedAccount.id}
+          accounts={accounts}
+          onCopy={executeCopyItemToAccount}
+        />
+      )}
+
+      {/* Dropped Files Confirmation Modal */}
+      <DropFileConfirmModal
+        isOpen={isDropConfirmOpen}
+        onClose={() => {
+          setIsDropConfirmOpen(false);
+          setDroppedFilesToConfirm([]);
+        }}
+        files={droppedFilesToConfirm}
+        accounts={accounts}
+        selectedAccountId={selectedAccountId}
+        onConfirm={executeAddDroppedFiles}
+      />
+
+      {/* Action Notifications */}
+      {notification && (
+        <NotificationModal
+          isOpen={notification.isOpen}
+          onClose={() => setNotification(null)}
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+        />
+      )}
     </div>
   );
 };
