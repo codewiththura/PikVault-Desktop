@@ -39,6 +39,10 @@ export function registerIpcHandlers(): void {
     return AccountRepo.delete(id);
   });
 
+  ipcMain.handle('accounts:togglePin', async (_, id: string) => {
+    return AccountRepo.togglePin(id);
+  });
+
   // Stored Items
   ipcMain.handle('items:getByAccountId', async (_, accountId: string) => {
     return ItemRepo.getByAccountId(accountId);
@@ -54,6 +58,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('items:delete', async (_, id: string) => {
     return ItemRepo.delete(id);
+  });
+
+  ipcMain.handle('items:copyToAccount', async (_, { itemId, targetAccountId }: { itemId: string; targetAccountId: string }) => {
+    return ItemRepo.copyToAccount(itemId, targetAccountId);
   });
 
   // Global Search
@@ -86,7 +94,7 @@ export function registerIpcHandlers(): void {
 
       const jsonString = JSON.stringify(backup, null, 2);
 
-      const win = BrowserWindow.getFocusedWindow();
+      const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
       const defaultFileName = `vault-backup-${new Date().toISOString().slice(0, 10)}.json`;
       
       const { canceled, filePath } = await dialog.showSaveDialog(win || undefined as any, {
@@ -94,6 +102,8 @@ export function registerIpcHandlers(): void {
         defaultPath: defaultFileName,
         filters: [{ name: 'JSON Files', extensions: ['json'] }],
       });
+
+      if (win) win.focus();
 
       if (canceled || !filePath) {
         return { success: false, error: 'Cancelled' };
@@ -110,12 +120,14 @@ export function registerIpcHandlers(): void {
   // JSON Import Backup
   ipcMain.handle('backup:importJson', async () => {
     try {
-      const win = BrowserWindow.getFocusedWindow();
+      const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
       const { canceled, filePaths } = await dialog.showOpenDialog(win || undefined as any, {
         title: 'Import Accounts & Data Backup (JSON)',
         properties: ['openFile'],
         filters: [{ name: 'JSON Files', extensions: ['json'] }],
       });
+
+      if (win) win.focus();
 
       if (canceled || !filePaths || !filePaths[0]) {
         return { success: false, error: 'Cancelled' };
@@ -133,23 +145,21 @@ export function registerIpcHandlers(): void {
       db.run('BEGIN TRANSACTION;');
       try {
         for (const acc of backup.accounts) {
-          // Check if exists
-          const existing = AccountRepo.getById(acc.id);
-          if (!existing) {
-            db.run(
-              `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?)`,
-              [
-                acc.id,
-                acc.username,
-                acc.password,
-                acc.lastLogin || new Date().toISOString(),
-                acc.maxStorageGB || 6.0,
-                acc.createdAt || new Date().toISOString(),
-                acc.updatedAt || new Date().toISOString(),
-              ]
-            );
-          }
+          db.run(
+            `INSERT OR REPLACE INTO accounts (id, username, password, last_login, max_storage_gb, description, is_pinned, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              acc.id,
+              acc.username,
+              acc.password,
+              acc.lastLogin || new Date().toISOString(),
+              acc.maxStorageGB || 6.0,
+              acc.description || null,
+              acc.isPinned ? 1 : 0,
+              acc.createdAt || new Date().toISOString(),
+              acc.updatedAt || new Date().toISOString(),
+            ]
+          );
         }
 
         if (backup.items && Array.isArray(backup.items)) {

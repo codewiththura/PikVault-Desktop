@@ -6,7 +6,8 @@ interface ItemGridProps {
   items: StoredItem[];
   highlightedItemId: string | null;
   onEdit: (item: StoredItem) => void;
-  onDelete: (id: string) => void;
+  onDelete: (item: StoredItem) => void;
+  onCopy?: (item: StoredItem) => void;
   onPreviewImage: (url: string) => void;
 }
 
@@ -15,6 +16,7 @@ export const ItemGrid: React.FC<ItemGridProps> = ({
   highlightedItemId,
   onEdit,
   onDelete,
+  onCopy,
   onPreviewImage,
 }) => {
   if (items.length === 0) {
@@ -53,6 +55,7 @@ export const ItemGrid: React.FC<ItemGridProps> = ({
           isHighlighted={highlightedItemId === item.id}
           onEdit={onEdit}
           onDelete={onDelete}
+          onCopy={onCopy}
           onPreviewImage={onPreviewImage}
         />
       ))}

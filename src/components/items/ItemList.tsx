@@ -3,13 +3,14 @@ import { StoredItem } from "../../types";
 import { Badge } from "../common/Badge";
 import { formatMB } from "../../utils/storage";
 import { formatDateOnly } from "../../utils/date";
-import { EditIcon, TrashIcon, ExternalLinkIcon } from "../common/Icons";
+import { EditIcon, TrashIcon, ExternalLinkIcon, CopyIcon } from "../common/Icons";
 
 interface ItemListProps {
   items: StoredItem[];
   highlightedItemId: string | null;
   onEdit: (item: StoredItem) => void;
-  onDelete: (id: string) => void;
+  onDelete: (item: StoredItem) => void;
+  onCopy?: (item: StoredItem) => void;
   onPreviewImage: (url: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const ItemList: React.FC<ItemListProps> = ({
   highlightedItemId,
   onEdit,
   onDelete,
+  onCopy,
   onPreviewImage,
 }) => {
   if (items.length === 0) {
@@ -191,6 +193,23 @@ export const ItemList: React.FC<ItemListProps> = ({
                 {/* Actions */}
                 <td style={{ textAlign: "right" }}>
                   <div style={{ display: "inline-flex", gap: "4px" }}>
+                    {onCopy && (
+                      <button
+                        onClick={() => onCopy(item)}
+                        style={{
+                          background: "transparent",
+                          border: "1px solid var(--border-subtle)",
+                          borderRadius: "var(--radius-xs)",
+                          color: "var(--text-secondary)",
+                          padding: "3px 8px",
+                          cursor: "pointer",
+                          display: "flex",
+                        }}
+                        title="Copy to another account"
+                      >
+                        <CopyIcon size={15} />
+                      </button>
+                    )}
                     <button
                       onClick={() => onEdit(item)}
                       style={{
@@ -207,11 +226,7 @@ export const ItemList: React.FC<ItemListProps> = ({
                       <EditIcon size={15} />
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`Delete stored item "${item.fileName}"?`)) {
-                          onDelete(item.id);
-                        }
-                      }}
+                      onClick={() => onDelete(item)}
                       style={{
                         background: "transparent",
                         border: "1px solid var(--border-subtle)",

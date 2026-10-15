@@ -7,12 +7,14 @@ const api: ElectronAPI = {
   createAccount: (data) => ipcRenderer.invoke('accounts:create', data),
   updateAccount: (data) => ipcRenderer.invoke('accounts:update', data),
   deleteAccount: (id) => ipcRenderer.invoke('accounts:delete', id),
+  toggleAccountPin: (id) => ipcRenderer.invoke('accounts:togglePin', id),
 
   // Items
   getItemsByAccountId: (accountId) => ipcRenderer.invoke('items:getByAccountId', accountId),
   createItem: (data) => ipcRenderer.invoke('items:create', data),
   updateItem: (data) => ipcRenderer.invoke('items:update', data),
   deleteItem: (id) => ipcRenderer.invoke('items:delete', id),
+  copyItemToAccount: (itemId, targetAccountId) => ipcRenderer.invoke('items:copyToAccount', { itemId, targetAccountId }),
 
   // Global Search
   searchGlobalItems: (query) => ipcRenderer.invoke('items:searchGlobal', query),

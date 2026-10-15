@@ -3,13 +3,14 @@ import { StoredItem } from "../../types";
 import { Badge } from "../common/Badge";
 import { formatMB } from "../../utils/storage";
 import { formatDateOnly } from "../../utils/date";
-import { EditIcon, TrashIcon, ExternalLinkIcon } from "../common/Icons";
+import { EditIcon, TrashIcon, ExternalLinkIcon, CopyIcon } from "../common/Icons";
 
 interface ItemCardProps {
   item: StoredItem;
   isHighlighted: boolean;
   onEdit: (item: StoredItem) => void;
-  onDelete: (id: string) => void;
+  onDelete: (item: StoredItem) => void;
+  onCopy?: (item: StoredItem) => void;
   onPreviewImage: (url: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   isHighlighted,
   onEdit,
   onDelete,
+  onCopy,
   onPreviewImage,
 }) => {
   return (
@@ -207,6 +209,26 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           flexShrink: 0,
         }}
       >
+        {onCopy && (
+          <button
+            onClick={() => onCopy(item)}
+            style={{
+              background: "transparent",
+              border: "1px solid var(--border-subtle)",
+              borderRadius: "var(--radius-xs)",
+              color: "var(--text-secondary)",
+              padding: "3px 8px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+            title="Copy to another account"
+          >
+            <CopyIcon size={14} />
+            <span>Copy</span>
+          </button>
+        )}
         <button
           onClick={() => onEdit(item)}
           style={{
@@ -225,11 +247,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           <span>Edit</span>
         </button>
         <button
-          onClick={() => {
-            if (confirm(`Delete stored item "${item.fileName}"?`)) {
-              onDelete(item.id);
-            }
-          }}
+          onClick={() => onDelete(item)}
           style={{
             background: "transparent",
             border: "1px solid var(--border-subtle)",

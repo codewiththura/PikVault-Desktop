@@ -157,6 +157,43 @@ export class ItemRepo {
   }
 
   /**
+   * Copies an existing item to another account
+   */
+  static copyToAccount(itemId: string, targetAccountId: string): StoredItem {
+    const db = getDb();
+    const stmt = db.prepare('SELECT * FROM stored_items WHERE id = ?');
+    stmt.bind([itemId]);
+
+    if (!stmt.step()) {
+      stmt.free();
+      throw new Error(`Item not found: ${itemId}`);
+    }
+
+    const row = stmt.getAsObject() as Record<string, any>;
+    stmt.free();
+
+    let externalLinks: string[] = [];
+    if (row.external_links) {
+      try {
+        externalLinks = JSON.parse(String(row.external_links));
+      } catch {
+        externalLinks = [String(row.external_links)];
+      }
+    }
+
+    return this.create({
+      accountId: targetAccountId,
+      fileName: String(row.file_name),
+      imageUrl: row.image_url ? String(row.image_url) : undefined,
+      fileSizeMB: Number(row.file_size_mb) || 0,
+      fileType: String(row.file_type || 'mp4'),
+      externalLinks,
+      updatedDate: row.updated_date ? String(row.updated_date) : undefined,
+      note: row.note ? String(row.note) : undefined,
+    });
+  }
+
+  /**
    * Global Search: Searches file names across ALL accounts
    * Returns matching items along with their owning account info
    */
