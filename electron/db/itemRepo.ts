@@ -1,6 +1,7 @@
 import { Database } from 'sql.js';
 import { getDb, persistDatabase } from './database.js';
 import { StoredItem, GlobalSearchResult } from '../types.js';
+import { matchesSearchText } from '../utils/search.js';
 import crypto from 'node:crypto';
 
 export class ItemRepo {
@@ -198,8 +199,10 @@ export class ItemRepo {
    * Returns matching items along with their owning account info
    */
   static searchGlobal(query: string): GlobalSearchResult[] {
+    const cleanQuery = (query || '').trim();
+    if (!cleanQuery) return [];
+
     const db = getDb();
-    const searchTerm = `%${(query || '').trim()}%`;
 
     const stmt = db.prepare(`
       SELECT 
@@ -217,15 +220,19 @@ export class ItemRepo {
         a.username as acc_username
       FROM stored_items i
       INNER JOIN accounts a ON i.account_id = a.id
-      WHERE i.file_name LIKE ? OR i.note LIKE ?
       ORDER BY i.created_at DESC
-      LIMIT 100
     `);
-    stmt.bind([searchTerm, searchTerm]);
 
     const results: GlobalSearchResult[] = [];
     while (stmt.step()) {
       const row = stmt.getAsObject() as Record<string, any>;
+      const fileName = String(row.file_name || '');
+      const note = row.note ? String(row.note) : undefined;
+
+      if (!matchesSearchText(fileName, cleanQuery) && !matchesSearchText(note, cleanQuery)) {
+        continue;
+      }
+
       let externalLinks: string[] = [];
       if (row.external_links) {
         try {
@@ -239,13 +246,13 @@ export class ItemRepo {
         item: {
           id: String(row.item_id),
           accountId: String(row.account_id),
-          fileName: String(row.file_name),
+          fileName,
           imageUrl: row.image_url ? String(row.image_url) : undefined,
           fileSizeMB: Number(row.file_size_mb) || 0,
           fileType: String(row.file_type || 'mp4'),
           externalLinks,
           updatedDate: row.updated_date ? String(row.updated_date) : undefined,
-          note: row.note ? String(row.note) : undefined,
+          note,
           createdAt: String(row.item_created_at),
         },
         account: {
@@ -253,6 +260,10 @@ export class ItemRepo {
           username: String(row.acc_username),
         },
       });
+
+      if (results.length >= 100) {
+        break;
+      }
     }
     stmt.free();
     return results;

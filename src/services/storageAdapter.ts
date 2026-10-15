@@ -1,4 +1,5 @@
 import type { Account, StoredItem, ElectronAPI, GlobalSearchResult, BackupData } from '../types/index.js';
+import { matchesSearchText } from '../utils/search.ts';
 
 const LOCAL_STORAGE_KEY_ACCOUNTS = 'vault_accounts_v1';
 const LOCAL_STORAGE_KEY_ITEMS = 'vault_items_v1';
@@ -289,7 +290,7 @@ export const browserApiFallback: ElectronAPI = {
   },
 
   async searchGlobalItems(query: string): Promise<GlobalSearchResult[]> {
-    const q = (query || '').toLowerCase().trim();
+    const q = (query || '').trim();
     if (!q) return [];
 
     const items = getStoredItems();
@@ -298,8 +299,8 @@ export const browserApiFallback: ElectronAPI = {
     accounts.forEach((a) => accountMap.set(a.id, a));
 
     const matched = items.filter((i) => 
-      i.fileName.toLowerCase().includes(q) || 
-      (i.note && i.note.toLowerCase().includes(q))
+      matchesSearchText(i.fileName, q) || 
+      (i.note && matchesSearchText(i.note, q))
     );
 
     return matched.map((item) => {

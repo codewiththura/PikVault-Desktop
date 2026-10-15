@@ -94,8 +94,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         borderLeft: isSelected
           ? "3px solid var(--accent-white)"
           : account.isPinned
-          ? "3px solid var(--accent-warning, #f59e0b)"
-          : "3px solid transparent",
+            ? "3px solid var(--accent-warning, #f59e0b)"
+            : "3px solid transparent",
         background: isSelected ? "var(--bg-secondary)" : "transparent",
         cursor: "pointer",
         transition: "background var(--transition-fast)",
@@ -120,20 +120,6 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             minWidth: 0,
           }}
         >
-          {account.isPinned && (
-            <span
-              title="Pinned account"
-              style={{
-                color: "var(--accent-warning, #f59e0b)",
-                display: "inline-flex",
-                alignItems: "center",
-                marginRight: "6px",
-                flexShrink: 0,
-              }}
-            >
-              <PinIcon size={12} filled={true} />
-            </span>
-          )}
           <span
             style={{
               fontWeight: 600,
@@ -173,7 +159,11 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           {onTogglePin && (
             <button
               onClick={handleTogglePin}
-              title={account.isPinned ? "Unpin account from top" : "Pin account to top"}
+              title={
+                account.isPinned
+                  ? "Unpin account from top"
+                  : "Pin account to top"
+              }
               style={{
                 background: "transparent",
                 border: "none",
@@ -185,10 +175,15 @@ export const AccountCard: React.FC<AccountCardProps> = ({
                 display: "flex",
                 alignItems: "center",
                 opacity: account.isPinned ? 1 : 0.6,
-                transition: "opacity var(--transition-fast), color var(--transition-fast)",
+                transition:
+                  "opacity var(--transition-fast), color var(--transition-fast)",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = account.isPinned ? '1' : '0.6'; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = "1";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = account.isPinned ? "1" : "0.6";
+              }}
             >
               <PinIcon size={13} filled={Boolean(account.isPinned)} />
             </button>

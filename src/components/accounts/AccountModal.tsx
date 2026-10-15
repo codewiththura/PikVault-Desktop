@@ -220,7 +220,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             value={maxStorageGB}
             onChange={(e) =>
               setMaxStorageGB(
-                e.target.value === "" ? "" : parseFloat(e.target.value)
+                e.target.value === "" ? "" : parseFloat(e.target.value),
               )
             }
             className="form-input"
@@ -234,7 +234,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         </div>
 
         <div className="form-group">
-          <label className="form-label">Description (Optional)</label>
+          <label className="form-label">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -242,21 +242,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             className="form-textarea"
             rows={2}
           />
-        </div>
-
-        <div className="form-group" style={{ marginTop: "12px", marginBottom: "8px" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "var(--text-primary)" }}>
-            <input
-              type="checkbox"
-              checked={isPinned}
-              onChange={(e) => setIsPinned(e.target.checked)}
-              style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "var(--accent-warning, #f59e0b)" }}
-            />
-            <span style={{ fontWeight: 500 }}>Pin account to top of ledger</span>
-          </label>
-          <span className="form-hint" style={{ marginTop: "4px", display: "block" }}>
-            Pinned accounts always appear at the top of the account list.
-          </span>
         </div>
 
         {error && (

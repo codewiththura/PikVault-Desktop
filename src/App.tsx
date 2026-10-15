@@ -75,7 +75,9 @@ export const App: React.FC = () => {
   } | null>(null);
 
   // Dropped Files Confirmation State
-  const [droppedFilesToConfirm, setDroppedFilesToConfirm] = useState<DroppedFileInfo[]>([]);
+  const [droppedFilesToConfirm, setDroppedFilesToConfirm] = useState<
+    DroppedFileInfo[]
+  >([]);
   const [isDropConfirmOpen, setIsDropConfirmOpen] = useState(false);
 
   const handleFilesDropped = (files: DroppedFileInfo[]) => {
@@ -113,7 +115,10 @@ export const App: React.FC = () => {
 
       setNotification({
         isOpen: true,
-        title: files.length > 1 ? "Files Cataloged Successfully" : "File Cataloged Successfully",
+        title:
+          files.length > 1
+            ? "Files Cataloged Successfully"
+            : "File Cataloged Successfully",
         message:
           files.length > 1
             ? `Successfully cataloged ${files.length} files into account "${targetName}".`
@@ -126,7 +131,9 @@ export const App: React.FC = () => {
       setNotification({
         isOpen: true,
         title: "Cataloging Failed",
-        message: err?.message || "Could not save the dropped file to the selected account.",
+        message:
+          err?.message ||
+          "Could not save the dropped file to the selected account.",
         type: "error",
       });
     }
@@ -189,7 +196,8 @@ export const App: React.FC = () => {
       setNotification({
         isOpen: true,
         title: "Copy Failed",
-        message: err?.message || "Could not copy media to the selected account.",
+        message:
+          err?.message || "Could not copy media to the selected account.",
         type: "error",
       });
     }
@@ -379,14 +387,22 @@ export const App: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => togglePinAccount(selectedAccount.id)}
-                      title={selectedAccount.isPinned ? "Unpin account from top" : "Pin account to top"}
+                      title={
+                        selectedAccount.isPinned
+                          ? "Unpin account from top"
+                          : "Pin account to top"
+                      }
                       style={{
-                        background: selectedAccount.isPinned ? "var(--bg-tertiary)" : "transparent",
+                        background: selectedAccount.isPinned
+                          ? "var(--bg-tertiary)"
+                          : "transparent",
                         border: "1px solid var(--border-subtle)",
                         borderRadius: "var(--radius-xs)",
-                        color: selectedAccount.isPinned ? "var(--accent-warning, #f59e0b)" : "var(--text-muted)",
+                        color: selectedAccount.isPinned
+                          ? "var(--accent-warning, #f59e0b)"
+                          : "var(--text-muted)",
                         cursor: "pointer",
-                        padding: "2px 6px",
+                        padding: "1px 10px",
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "4px",
@@ -394,7 +410,10 @@ export const App: React.FC = () => {
                         transition: "all var(--transition-fast)",
                       }}
                     >
-                      <PinIcon size={12} filled={Boolean(selectedAccount.isPinned)} />
+                      <PinIcon
+                        size={13}
+                        filled={Boolean(selectedAccount.isPinned)}
+                      />
                       <span>{selectedAccount.isPinned ? "Pinned" : "Pin"}</span>
                     </button>
                   </div>
@@ -441,8 +460,7 @@ export const App: React.FC = () => {
                     >
                       Last login:{" "}
                       {formatRelativeTime(selectedAccount.lastLogin)}
-                      {isOlderThanDays(selectedAccount.lastLogin, 30) &&
-                        " (Relogin required)"}
+                      {isOlderThanDays(selectedAccount.lastLogin, 30)}
                     </span>
                     <button
                       type="button"
@@ -454,7 +472,7 @@ export const App: React.FC = () => {
                         borderRadius: "var(--radius-xs)",
                         color: "var(--text-secondary)",
                         marginTop: "5px",
-                        padding: "2px 8px",
+                        padding: "8px 10px",
                         cursor: isUpdatingLastLogin ? "not-allowed" : "pointer",
                         display: "inline-flex",
                         alignItems: "center",
@@ -462,12 +480,12 @@ export const App: React.FC = () => {
                         opacity: isUpdatingLastLogin ? 0.6 : 1,
                         transition: "all var(--transition-fast)",
                       }}
-                      title="Update last login to latest current datetime"
+                      title="Update last login to current datetime"
                     >
                       <RefreshCwIcon size={15} />
-                      <span>
+                      {/* <span>
                         {isUpdatingLastLogin ? "Updating..." : "Update to Now"}
-                      </span>
+                      </span> */}
                     </button>
                   </div>
                 </div>

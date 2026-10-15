@@ -161,7 +161,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           }}
         >
           <div className="form-group">
-            <label className="form-label">File Type (default: mp4)</label>
+            <label className="form-label">File Type</label>
             <input
               type="text"
               value={fileType}
@@ -172,7 +172,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label">File Size (Optional)</label>
+            <label className="form-label">File Size</label>
             <div style={{ display: "flex", gap: "6px" }}>
               <input
                 type="number"
@@ -204,7 +204,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
         {/* Image URL (Optional) with live preview */}
         <div className="form-group">
           <Input
-            label="Image URL (Optional)"
+            label="Image URL"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://example.com/cover.jpg"
@@ -237,7 +237,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
         {/* Updated Date */}
         <div className="form-group">
-          <label className="form-label">Updated Date (Optional)</label>
+          <label className="form-label">Updated Date</label>
           <input
             type="date"
             value={updatedDate}
@@ -248,13 +248,11 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
         {/* External Links (Optional) */}
         <div className="form-group">
-          <label className="form-label">
-            External Links (Optional - one per line)
-          </label>
+          <label className="form-label">External Links (One per line)</label>
           <textarea
             value={externalLinksText}
             onChange={(e) => setExternalLinksText(e.target.value)}
-            placeholder="https://mega.nz/file/...\nhttps://drive.google.com/..."
+            placeholder="https://mega.nz/file/..."
             className="form-textarea"
             rows={3}
           />
@@ -262,7 +260,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
         {/* Note (Optional) */}
         <div className="form-group">
-          <label className="form-label">Note (Optional)</label>
+          <label className="form-label">Note</label>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}

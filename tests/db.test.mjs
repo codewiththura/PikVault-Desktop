@@ -110,6 +110,39 @@ test('SQLite Database Engine & Schema Test', async () => {
   assert.ok(searchResults.length >= 1, 'Global search should find ubuntu item');
   assert.equal(searchResults[0].account.username, 'test.linux@proton.me', 'Global search should show owning account');
 
+  // Test delimiter-agnostic matching on "ubuntu-server-24.04.iso"
+  const searchSpace = ItemRepo.searchGlobal('ubuntu server');
+  assert.ok(searchSpace.length >= 1, 'Search "ubuntu server" should find "ubuntu-server-24.04.iso"');
+  const searchNoDelimiter = ItemRepo.searchGlobal('ubuntuserver');
+  assert.ok(searchNoDelimiter.length >= 1, 'Search "ubuntuserver" should find "ubuntu-server-24.04.iso"');
+
+  // Test user requirement: "abc-58" matched by "abc 58" and "abc58"
+  const abcItem = ItemRepo.create({
+    accountId: newAcc.id,
+    fileName: 'abc-58.mp4',
+    fileSizeMB: 10,
+    fileType: 'mp4',
+  });
+  const searchAbcSpace = ItemRepo.searchGlobal('abc 58');
+  assert.ok(searchAbcSpace.some((r) => r.item.id === abcItem.id), 'Searching "abc 58" must find "abc-58.mp4"');
+  const searchAbcMerged = ItemRepo.searchGlobal('abc58');
+  assert.ok(searchAbcMerged.some((r) => r.item.id === abcItem.id), 'Searching "abc58" must find "abc-58.mp4"');
+
+  // Vice-versa: "xyz 99.mkv" matched by "xyz-99" and "xyz99"
+  const xyzItem = ItemRepo.create({
+    accountId: newAcc.id,
+    fileName: 'xyz 99.mkv',
+    fileSizeMB: 20,
+    fileType: 'mkv',
+  });
+  const searchXyzHyphen = ItemRepo.searchGlobal('xyz-99');
+  assert.ok(searchXyzHyphen.some((r) => r.item.id === xyzItem.id), 'Searching "xyz-99" must find "xyz 99.mkv"');
+  const searchXyzMerged = ItemRepo.searchGlobal('xyz99');
+  assert.ok(searchXyzMerged.some((r) => r.item.id === xyzItem.id), 'Searching "xyz99" must find "xyz 99.mkv"');
+
+  ItemRepo.delete(abcItem.id);
+  ItemRepo.delete(xyzItem.id);
+
   // 7. Cleanup test data
   AccountRepo.delete(newAcc.id);
   const itemsAfterDelete = ItemRepo.getByAccountId(newAcc.id);

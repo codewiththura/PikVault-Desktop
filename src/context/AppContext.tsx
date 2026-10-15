@@ -10,6 +10,7 @@ import {
   FontSizeSetting
 } from '../types';
 import { getApi } from '../services/storageAdapter';
+import { matchesSearchText } from '../utils/search';
 
 interface AppContextType {
   // Accounts
@@ -331,10 +332,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const filteredAndSortedAccounts = React.useMemo(() => {
-    const q = accountSearch.toLowerCase().trim();
+    const q = accountSearch.trim();
     let list = accounts.filter(acc => 
-      acc.username.toLowerCase().includes(q) ||
-      (acc.description && acc.description.toLowerCase().includes(q))
+      !q ||
+      matchesSearchText(acc.username, q) ||
+      (acc.description && matchesSearchText(acc.description, q))
     );
 
     list.sort((a, b) => {
@@ -370,11 +372,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Filtered Items inside active account
   const filteredItems = React.useMemo(() => {
-    if (!itemSearch.trim()) return activeItems;
-    const q = itemSearch.toLowerCase().trim();
+    const q = itemSearch.trim();
+    if (!q) return activeItems;
     return activeItems.filter(item => 
-      item.fileName.toLowerCase().includes(q) || 
-      (item.note && item.note.toLowerCase().includes(q))
+      matchesSearchText(item.fileName, q) || 
+      (item.note && matchesSearchText(item.note, q))
     );
   }, [activeItems, itemSearch]);
 

@@ -55,6 +55,7 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 - Shows ownership details immediately (`Stored in account: user@example.com`).
 - Includes a direct "Jump" button to open the target account and highlight the matched record.
 - **Quick-Clear Search Action**: Includes a dedicated 1-click clear button (`×`) inside the input bar whenever text is present, allowing users to wipe the query and refocus the input instantly, with keyboard Escape support.
+- **Delimiter-Agnostic Intelligent Matching**: Flexible search normalization that matches file names regardless of hyphens, underscores, dots, or spaces. For instance, searching `abc 58` or `abc58` instantly matches `abc-58`, and vice versa (`abc-58` matches `abc 58` or `abc58`).
 - Responsive top-bar search triggers automatically collapse into a compact 32x32px icon button on smaller viewports (960px to 1100px) to prevent UI overflow.
 
 ### Customization & Interface Controls
@@ -144,6 +145,16 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
   - Automatically expands input right padding (`padding-right: 36px`) when active, preventing long search queries from overlapping the clear icon.
   - Clicking the button invokes `performGlobalSearch('')` (wiping query state and clearing the search results list) and immediately refocuses the input field via `inputRef.current?.focus()` for uninterrupted keyboard entry.
   - Pressing `Escape` while focused on a populated search input intercepts the event to clear the text query first before dismissing the modal on subsequent press.
+- **Delimiter-Agnostic Fuzzy Matching Engine ([`search.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/utils/search.ts) & [`electron/utils/search.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/electron/utils/search.ts))**:
+  - Implements `matchesSearchText(target, query)` to provide robust, human-friendly search matching across delimiters:
+    1. **Direct Case-Insensitive Substring**: Finds direct substring occurrences (`cleanTarget.includes(cleanQuery)`).
+    2. **Normalized Alphanumeric Matching**: Using Unicode-aware regex `[^\p{L}\p{N}]/gu`, both the target string and search query are stripped of separators (hyphens, spaces, underscores, dots, slashes). For example, `abc-58` normalizes to `abc58`, and searching `abc 58` or `abc58` instantly matches `abc-58`, and vice-versa.
+    3. **Multi-Token Matching**: Splits queries containing delimiters into individual tokens and verifies that all tokens exist in the target (either literally or in normalized alphanumeric form).
+  - Uniformly wired across the entire application stack:
+    - **Global Search (Electron Backend)**: [`electron/db/itemRepo.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/electron/db/itemRepo.ts) executes candidate retrieval and evaluates `matchesSearchText` for file names and notes.
+    - **Global Search (Browser Fallback)**: [`src/services/storageAdapter.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/services/storageAdapter.ts) filters cached items using `matchesSearchText`.
+    - **In-Account Item Filter**: [`src/context/AppContext.tsx`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/context/AppContext.tsx) filters catalog items by file name and note with `matchesSearchText`.
+    - **Account Ledger Filter**: [`src/context/AppContext.tsx`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/context/AppContext.tsx) filters accounts by username and description using `matchesSearchText`.
 
 ### 5. Standalone Isolated Database & JSON Backup
 
