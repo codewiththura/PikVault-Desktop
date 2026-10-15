@@ -3,12 +3,14 @@ import React from 'react';
 export interface BadgeProps {
   children: React.ReactNode;
   variant?: 'default' | 'white' | 'warning' | 'danger';
+  size?: 'sm' | 'md';
   className?: string;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
   children,
   variant = 'default',
+  size = 'md',
   className = '',
 }) => {
   const variantClass = {
@@ -18,5 +20,11 @@ export const Badge: React.FC<BadgeProps> = ({
     danger: 'badge-danger',
   }[variant];
 
-  return <span className={`badge ${variantClass} ${className}`}>{children}</span>;
+  const sizeClass = size === 'sm' ? 'badge-sm' : '';
+
+  return (
+    <span className={`badge ${variantClass} ${sizeClass} ${className}`.trim()}>
+      {children}
+    </span>
+  );
 };

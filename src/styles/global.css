@@ -138,6 +138,11 @@
   color: var(--accent-danger);
 }
 
+.badge-sm {
+  padding: 1px 5px;
+  font-size: 10px;
+}
+
 /* Modal Backdrop & Window */
 .modal-overlay {
   position: fixed;

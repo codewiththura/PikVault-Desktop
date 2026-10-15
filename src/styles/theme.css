@@ -93,6 +93,12 @@
   --accent-success: var(--cffy-theme-success-a0);
   --accent-info: var(--cffy-theme-info-a0);
 
+  /* Surface variants & Dropzone (Dark) */
+  --bg-dropzone: rgba(34, 23, 21, 0.85);
+  --bg-dropzone-backdrop: rgba(12, 12, 12, 0.85);
+  --bg-danger-subtle: rgba(255, 48, 48, 0.12);
+  --border-danger-subtle: rgba(255, 48, 48, 0.35);
+
   /* Unified App-wide Typography */
   --font-family:
     "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -136,6 +142,12 @@
   --accent-warning: #c28800;
   --accent-success: #15803d;
   --accent-info: #0284c7;
+
+  /* Surface variants & Dropzone (Light) */
+  --bg-dropzone: rgba(250, 236, 230, 0.95);
+  --bg-dropzone-backdrop: rgba(248, 246, 244, 0.82);
+  --bg-danger-subtle: rgba(224, 40, 40, 0.08);
+  --border-danger-subtle: rgba(224, 40, 40, 0.28);
 }
 
 /* Universal Base Box-Sizing Reset */
