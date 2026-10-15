@@ -3,7 +3,7 @@ import { Modal } from "../common/Modal";
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { Account } from "../../types";
-import { EyeIcon, EyeOffIcon } from "../common/Icons";
+import { EyeIcon, EyeOffIcon, PinIcon } from "../common/Icons";
 
 interface AccountModalProps {
   isOpen: boolean;
@@ -242,6 +242,32 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             className="form-textarea"
             rows={2}
           />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: "8px" }}>
+          <label
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: "pointer",
+              fontSize: "var(--font-size-sm)",
+              color: isPinned ? "var(--accent-warning, #f59e0b)" : "var(--text-secondary)",
+              userSelect: "none",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={isPinned}
+              onChange={(e) => setIsPinned(e.target.checked)}
+              style={{
+                accentColor: "var(--accent-warning, #f59e0b)",
+                cursor: "pointer",
+              }}
+            />
+            <PinIcon size={14} filled={isPinned} />
+            <span>Pin account to top</span>
+          </label>
         </div>
 
         {error && (
