@@ -29,10 +29,12 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 ### Account Ledger & Health
 
 - **Credential Management**: Securely track usernames, masked passwords with one-click clipboard copying, and authentication metadata.
+- **Pinned Accounts**: Pin critical or frequently used accounts to permanently anchor them to the top of the account ledger list. Pinned accounts display an amber pin badge, distinct accent border, and 1-click toggle buttons in both ledger cards and the active account header banner. Pinned accounts take absolute sorting priority over unpinned accounts, while retaining internal secondary sorting (by Name, Last Login, Storage, or Created Date).
+- **Account Descriptions**: Assign optional descriptions and recovery/purpose notes on creation and editing, viewable directly in ledger cards and detail view.
 - **Relogin Status & Stale Account Alerts**: Converts timestamps to relative indicators (`Just now`, `20 days ago`, `1 month ago`). Accounts inactive for 30 days or longer trigger a prominent red warning and a `Relogin` badge.
 - **One-Click Activity Refresh**: Quickly refresh an account's last login to the current date and time directly from the detail pane with safety confirmation prompts.
 - **Integrated Password Generator**: Generate cryptographically strong random passwords inside the editor modal.
-- **Fast Sorting & Filtering**: Filter accounts instantly by name, email, last login date, remaining storage capacity, or created date.
+- **Fast Sorting & Filtering**: Filter accounts instantly by name, email, description, last login date, remaining storage capacity, or created date.
 
 ### Storage Cataloging
 
@@ -44,7 +46,8 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 
 - **Compact List View**: Dense table layout with sortable columns, responsive text truncation with full hover tooltips, and horizontal/vertical scroll boundaries.
 - **Uniform Card Grid View**: Fixed 350px card heights with 140px media preview headers, two-line text clamping, and footer action bars to eliminate layout shifts.
-- **In-Account Search**: Quickly locate records inside the currently active account by filename or notes.
+- **1-Click Media Copy Between Accounts**: Directly duplicate any cataloged media item to another account from both List View and Grid View without re-entering filenames, URLs, or sizes. Includes destination account selection, live quota impact preview, overage warnings, and instant recalculation.
+- **Drag & Drop File Cataloging with Quota Excess Warning**: Drag any file or multiple files directly from your desktop or file manager into the catalog pane. PikVault automatically extracts the file name, format extension, and exact size. A confirmation dialog checks the account's maximum storage limit: if the dropped file(s) plus existing files exceed the account quota, it displays an explicit excess warning box showing the overage amount with an option to either Cancel or Process Anyway.
 
 ### Global Cross-Account Search (`Ctrl+K`)
 
@@ -68,7 +71,13 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 - **Credentials & Metadata**: Tracks Username (email), Password (with 1-click clipboard copy and masked/unmasked toggle), and Last Login timestamp.
 - **Relative Last Login & Overdue Alerts**: Displays Last Login in human-friendly relative format (e.g. `Just now`, `20 days ago`, `1 month ago`, `2 years ago`). If an account has not been logged into for more than 1 month (>= 30 days), the label turns red (`var(--accent-danger)`) with a high-contrast `Relogin` badge alerting the user to re-authenticate.
 - **1-Click "Update to Now" Timestamp Refresh**: Beside the active account's Last Login indicator in the detail pane, an inline **"Update to Now"** action button allows users to immediately stamp the account's `lastLogin` timestamp to the latest current date & time. This immediately clears overdue relogin alerts, recalculates relative timestamps, updates SQLite persistence, and updates account sort ordering.
-- **Accidental Modification Safeguards**: Explicit user confirmation prompts (`confirm`) are displayed before committing changes when updating an existing account record or triggering the **"Update to Now"** timestamp refresh, preventing accidental database alterations.
+- **Focus-Safe In-DOM Modal Safeguards**: All confirmation workflows (triggering **"Update to Now"**, deleting accounts, deleting stored items, and importing backups) use custom in-DOM React modals (`ConfirmModal` and `NotificationModal`) instead of native blocking browser popups (`window.confirm` / `window.alert`). This completely eliminates the Chromium/Electron focus drop issue on Linux where text inputs previously became uneditable after modal dismissals.
+- **Account Descriptions**: Optional description field supported on account creation and editing. Descriptions appear directly in the account list card and the active account header overview for quick identification of account purposes, tiers, or recovery notes.
+- **Pinned Accounts Engine**:
+  - **Top-of-Ledger Priority**: Pinned accounts always float to the top of the account ledger list (`pinB - pinA`), regardless of which sort field (**Name**, **Last login**, **Storage Remaining**, or **Created Date**) or direction (`asc`/`desc`) is selected. Multiple pinned accounts sort among themselves according to the active sorting preference, followed by unpinned accounts.
+  - **SQLite Schema & Auto-Migration**: Backed by an `is_pinned INTEGER DEFAULT 0` column in the `accounts` table. On startup, the database engine executes a safe `PRAGMA table_info(accounts)` column inspection and automatically executes `ALTER TABLE accounts ADD COLUMN is_pinned INTEGER DEFAULT 0` if upgrading an existing database, ensuring 100% backward compatibility and zero data loss.
+  - **Quick Toggle & Event Containment**: Pinned status can be toggled via 1-click pin buttons on individual ledger cards (with `e.stopPropagation()` preventing inadvertent account selection changes), directly from the active account header banner, or configured via the Account Creation/Edit modal checkbox.
+  - **IPC & Fallback Bridge**: Supported natively via the `accounts:togglePin` IPC handler, exposed safely through `contextBridge` (`toggleAccountPin`), and fully integrated into the browser/offline storage fallback adapter (`storageAdapter.ts`).
 - **Auto Password Generator**: Integrated cryptographic random password generator.
 - **Sorting & Filtering**:
   - Instant search by account name or email.
@@ -108,6 +117,16 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
     - **Truncation & Overflow Protection**: Two-line clamped file names and notes with text-overflow ellipsis to prevent cards from overflowing or stretching unevenly.
     - **Responsive Link Trays & Action Bars**: Compact external link pills and pinned action buttons (Edit, Delete) in the card footer.
 - **In-Account Search**: Instant local filter by file name or notes within the active account.
+- **Drag & Drop File Cataloging Pipeline**:
+  - **Window-Level Navigation Prevention**: Chromium and Electron by default navigate to dropped media paths if not intercepted. The custom hook [`useFileDrop.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/hooks/useFileDrop.ts) attaches window-level `dragover` and `drop` event listeners that call `preventDefault()`, preventing unintended window redirects while safely handling dropped filesystem entities.
+  - **Flicker-Free Drag Counter**: Uses a ref-backed counter (`dragCounterRef`) incremented on `dragenter` and decremented on `dragleave` to ensure the visual drop overlay remains stable and flicker-free when dragging across complex nested child DOM trees.
+  - **Metadata Extraction Utility ([`fileDrop.ts`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/utils/fileDrop.ts))**: Automatically converts file sizes to Megabytes (`MB = bytes / (1024 * 1024)`) with a minimum 0.01 MB precision for sub-megabyte assets, strips leading dots and sanitizes file extensions, and provides formatted human-readable size strings (`formatDroppedFileSize`).
+  - **Visual Frosted Drop Overlay ([`DropOverlay.tsx`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/components/items/DropOverlay.tsx))**: Renders a glassmorphic blurred backdrop (`backdrop-filter: blur(4px)`) with dashed warning border, upload iconography, and contextual instructions indicating the target account. Uses `pointer-events: none` to avoid interfering with drop dispatch.
+  - **Confirmation & Storage Limit Modal ([`DropFileConfirmModal.tsx`](file:///media/thura/DATA/My%20Folders/My%20Projects/account-vault-desktop/src/components/items/DropFileConfirmModal.tsx))**: Confirms file addition before committing. Previews detected filename, format extension, size, destination account selector, real-time quota headroom calculation, overage warnings, and optional description notes. Supports single-file and batch multi-file drops.
+    - **Account Max Limit Validation**: Compares the projected total (`currentUsedMB + totalDroppedMB`) against the target account's configured limit (`maxStorageGB * 1024`).
+    - **Excess Warning State Box**: If the dropped file(s) cause the account to exceed its maximum storage limit, the modal displays an eye-catching warning box highlighted in red with an `Excess: +X.XX MB` overage badge, breakdown of current usage and dropped file impact, and an explicit decision prompt.
+    - **Cancel or Process Decision**: When the limit is exceeded, the modal changes its primary action to `Process Anyway` (danger variant) alongside `Cancel`, allowing the user to make a deliberate choice whether to bypass the limit or cancel. If within quota, it shows a clean headroom summary and standard `Add File to Account` action.
+    - **Dynamic Account Switching**: Changing the destination account in the dropdown instantly re-evaluates the quota limits against the newly selected account.
 
 ### 4. Cross-Account Global Search (`Ctrl+K`)
 
@@ -214,6 +233,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   password TEXT NOT NULL,
   last_login TEXT NOT NULL,
   max_storage_gb REAL DEFAULT 6.0,
+  description TEXT,        -- Optional account purpose / remarks
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -614,3 +634,11 @@ The project was constructed following a structured, step-by-step milestone workf
 18. `feat(windows): configure Windows release generation with NSIS setup, portable exe, and cross-platform builds`
 19. `feat(mac): configure macOS distribution packaging (.dmg installer and zip archive)`
 20. `feat(accounts): add created date sort button and sorting logic for account ledger`
+21. `fix(dialogs): replace native confirm and alert calls with focus-safe in-DOM modals to resolve Linux keyboard focus drops`
+22. `feat(accounts): add optional description field to accounts with SQLite auto-migration and UI integration`
+23. `fix(ui): remove 'Default is 6GB per account' hint and improve backup import/export merge safety`
+24. `feat(items): add 1-click cross-account media copy with quota impact preview and notification safeguards`
+25. `feat(accounts): add pinned accounts feature with top-of-list priority sorting, SQLite auto-migration, and quick-toggle controls`
+26. `feat(items): add drag-and-drop file cataloging with automatic metadata extraction, quota impact preview, and confirmation modal`
+27. `feat(items): add account max limit quota check to file drop confirmation with excess warning state box and cancel or process decisions`
+28. `style(theme): enhance Badge component with size variants and harmonize dropzone and alert colors for light and dark themes`
