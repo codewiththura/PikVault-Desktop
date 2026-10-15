@@ -4,7 +4,7 @@ import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
 import { formatMB } from '../../utils/storage';
 import { formatDateOnly } from '../../utils/date';
-import { SearchIcon, ChevronRightIcon } from '../common/Icons';
+import { SearchIcon, ChevronRightIcon, CloseIcon } from '../common/Icons';
 
 export const GlobalSearchModal: React.FC = () => {
   const {
@@ -36,6 +36,11 @@ export const GlobalSearchModal: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isGlobalSearchOpen, setIsGlobalSearchOpen]);
 
+  const handleClear = () => {
+    performGlobalSearch('');
+    inputRef.current?.focus();
+  };
+
   return (
     <Modal
       isOpen={isGlobalSearchOpen}
@@ -53,10 +58,51 @@ export const GlobalSearchModal: React.FC = () => {
           type="text"
           value={globalSearchQuery}
           onChange={(e) => performGlobalSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' && globalSearchQuery) {
+              e.stopPropagation();
+              handleClear();
+            }
+          }}
           placeholder="Search file name or note across all accounts..."
           className="form-input"
-          style={{ paddingLeft: '34px', paddingRight: '10px' }}
+          style={{
+            paddingLeft: '34px',
+            paddingRight: globalSearchQuery ? '36px' : '10px',
+          }}
         />
+        {globalSearchQuery && (
+          <button
+            type="button"
+            onClick={handleClear}
+            title="Clear search"
+            aria-label="Clear search input"
+            style={{
+              position: 'absolute',
+              right: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'transparent',
+              border: 'none',
+              padding: '4px',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              borderRadius: 'var(--radius-xs)',
+              transition: 'color var(--transition-fast), background-color var(--transition-fast)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            <CloseIcon size={14} />
+          </button>
+        )}
       </div>
 
       {/* Results Header */}

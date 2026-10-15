@@ -89,4 +89,10 @@ test('Storage Adapter (Fallback & Web Engine) CRUD Test', async () => {
   assert.ok(searchResults.length >= 2, 'Global search should now find both original and copied items');
   assert.ok(searchResults.some((r) => r.account.username === 'new.user@testvault.org'));
   assert.ok(searchResults.some((r) => r.account.username === targetAcc.username));
+
+  // Test clearing search returns empty list
+  const emptyResults = await browserApiFallback.searchGlobalItems('');
+  assert.equal(emptyResults.length, 0, 'Clearing search query to empty string should return 0 results');
+  const whitespaceResults = await browserApiFallback.searchGlobalItems('   ');
+  assert.equal(whitespaceResults.length, 0, 'Whitespace search query should return 0 results');
 });

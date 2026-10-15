@@ -54,6 +54,7 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
 - Search filenames across every account simultaneously from a single modal.
 - Shows ownership details immediately (`Stored in account: user@example.com`).
 - Includes a direct "Jump" button to open the target account and highlight the matched record.
+- **Quick-Clear Search Action**: Includes a dedicated 1-click clear button (`×`) inside the input bar whenever text is present, allowing users to wipe the query and refocus the input instantly, with keyboard Escape support.
 - Responsive top-bar search triggers automatically collapse into a compact 32x32px icon button on smaller viewports (960px to 1100px) to prevent UI overflow.
 
 ### Customization & Interface Controls
@@ -138,6 +139,11 @@ Managing multiple cloud accounts, segmented backup drives, and remote assets oft
   - On standard and wide window sizes (> 1100px), presents the full search bar button complete with search icon, text label (`Global Search Data...`), and hotkey pill (`Ctrl+K`).
   - When the application window width is resized towards minimum width (`<= 1100px`, down to the `960px` minimum window width), the search bar intelligently collapses into a compact, centered 32x32px icon-only button (`<SearchIcon />`).
   - Preserves accessibility with native `title` tooltip, `aria-label`, and keyboard focus ring while reclaiming ~210px of horizontal header space to ensure flexible, overflow-free layout at all window dimensions.
+- **Instant Search Input Clear (`×`)**:
+  - Dynamically renders a clean clear button (`CloseIcon`) positioned at the right edge of the input whenever `globalSearchQuery` contains text.
+  - Automatically expands input right padding (`padding-right: 36px`) when active, preventing long search queries from overlapping the clear icon.
+  - Clicking the button invokes `performGlobalSearch('')` (wiping query state and clearing the search results list) and immediately refocuses the input field via `inputRef.current?.focus()` for uninterrupted keyboard entry.
+  - Pressing `Escape` while focused on a populated search input intercepts the event to clear the text query first before dismissing the modal on subsequent press.
 
 ### 5. Standalone Isolated Database & JSON Backup
 
@@ -642,3 +648,4 @@ The project was constructed following a structured, step-by-step milestone workf
 26. `feat(items): add drag-and-drop file cataloging with automatic metadata extraction, quota impact preview, and confirmation modal`
 27. `feat(items): add account max limit quota check to file drop confirmation with excess warning state box and cancel or process decisions`
 28. `style(theme): enhance Badge component with size variants and harmonize dropzone and alert colors for light and dark themes`
+29. `feat(search): add instant clear button and Escape key query clearing to global search modal`
