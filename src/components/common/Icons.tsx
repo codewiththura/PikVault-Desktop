@@ -170,3 +170,45 @@ export const RefreshCwIcon: React.FC<IconProps> = ({ size = 16, className = '', 
   </svg>
 );
 
+export const PinIcon: React.FC<IconProps & { filled?: boolean }> = ({
+  size = 16,
+  filled = false,
+  className = '',
+  ...props
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="square"
+    strokeLinejoin="miter"
+    className={className}
+    {...props}
+  >
+    <line x1="12" y1="17" x2="12" y2="22" />
+    <path d="M5 17h14v-2l-3-3V5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v7l-3 3v2z" />
+  </svg>
+);
+
+export const FileIcon: React.FC<IconProps> = ({ size = 16, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="square"
+    strokeLinejoin="miter"
+    className={className}
+    {...props}
+  >
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+    <polyline points="13 2 13 9 20 9" />
+  </svg>
+);
+
+

@@ -150,6 +150,8 @@ export const browserApiFallback: ElectronAPI = {
       password: data.password,
       lastLogin: data.lastLogin || now,
       maxStorageGB: data.maxStorageGB || 6.0,
+      description: data.description ? data.description.trim() : undefined,
+      isPinned: Boolean(data.isPinned),
       createdAt: now,
       updatedAt: now,
       totalUsedMB: 0,
@@ -172,6 +174,25 @@ export const browserApiFallback: ElectronAPI = {
     const updatedAcc: Account = {
       ...accounts[idx],
       ...data,
+      description: data.description !== undefined ? (data.description ? data.description.trim() : undefined) : accounts[idx].description,
+      isPinned: data.isPinned !== undefined ? Boolean(data.isPinned) : accounts[idx].isPinned,
+      updatedAt: new Date().toISOString(),
+    };
+    accounts[idx] = updatedAcc;
+    saveStoredAccounts(accounts);
+    return updatedAcc;
+  },
+
+  async toggleAccountPin(id: string): Promise<Account> {
+    const accounts = getStoredAccounts();
+    const idx = accounts.findIndex((a) => a.id === id);
+    if (idx === -1) {
+      throw new Error(`Account ${id} not found`);
+    }
+
+    const updatedAcc: Account = {
+      ...accounts[idx],
+      isPinned: !accounts[idx].isPinned,
       updatedAt: new Date().toISOString(),
     };
     accounts[idx] = updatedAcc;
@@ -239,6 +260,32 @@ export const browserApiFallback: ElectronAPI = {
     items = items.filter((i) => i.id !== id);
     saveStoredItems(items);
     return true;
+  },
+
+  async copyItemToAccount(itemId: string, targetAccountId: string): Promise<StoredItem> {
+    const items = getStoredItems();
+    const source = items.find((i) => i.id === itemId);
+    if (!source) {
+      throw new Error(`Item ${itemId} not found`);
+    }
+
+    const now = new Date().toISOString();
+    const newItem: StoredItem = {
+      id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      accountId: targetAccountId,
+      fileName: source.fileName,
+      imageUrl: source.imageUrl,
+      fileSizeMB: source.fileSizeMB,
+      fileType: source.fileType,
+      externalLinks: source.externalLinks ? [...source.externalLinks] : undefined,
+      updatedDate: source.updatedDate,
+      note: source.note,
+      createdAt: now,
+    };
+
+    const updated = [newItem, ...items];
+    saveStoredItems(updated);
+    return newItem;
   },
 
   async searchGlobalItems(query: string): Promise<GlobalSearchResult[]> {
@@ -312,10 +359,19 @@ export const browserApiFallback: ElectronAPI = {
             return;
           }
 
-          saveStoredAccounts(backup.accounts);
+          const currentAccounts = getStoredAccounts();
+          const mergedAccountsMap = new Map<string, Account>();
+          currentAccounts.forEach(a => mergedAccountsMap.set(a.id, a));
+          backup.accounts.forEach(a => mergedAccountsMap.set(a.id, a));
+          saveStoredAccounts(Array.from(mergedAccountsMap.values()));
+
+          const currentItems = getStoredItems();
+          const mergedItemsMap = new Map<string, StoredItem>();
+          currentItems.forEach(i => mergedItemsMap.set(i.id, i));
           if (backup.items && Array.isArray(backup.items)) {
-            saveStoredItems(backup.items);
+            backup.items.forEach(i => mergedItemsMap.set(i.id, i));
           }
+          saveStoredItems(Array.from(mergedItemsMap.values()));
 
           resolve({
             success: true,

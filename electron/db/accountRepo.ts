@@ -16,6 +16,8 @@ export class AccountRepo {
         a.password, 
         a.last_login, 
         a.max_storage_gb, 
+        a.description,
+        a.is_pinned,
         a.created_at, 
         a.updated_at,
         COALESCE(SUM(i.file_size_mb), 0) as total_used_mb,
@@ -49,6 +51,8 @@ export class AccountRepo {
         password: String(obj.password),
         lastLogin: String(obj.last_login),
         maxStorageGB: maxGB,
+        description: obj.description ? String(obj.description) : undefined,
+        isPinned: Boolean(obj.is_pinned),
         createdAt: String(obj.created_at),
         updatedAt: String(obj.updated_at),
         totalUsedMB,
@@ -80,6 +84,8 @@ export class AccountRepo {
       password: String(row.password),
       lastLogin: String(row.last_login),
       maxStorageGB: Number(row.max_storage_gb) || 6.0,
+      description: row.description ? String(row.description) : undefined,
+      isPinned: Boolean(row.is_pinned),
       createdAt: String(row.created_at),
       updatedAt: String(row.updated_at),
     };
@@ -93,11 +99,13 @@ export class AccountRepo {
     const id = `acc-${crypto.randomUUID()}`;
     const now = new Date().toISOString();
     const maxStorageGB = data.maxStorageGB || 6.0;
+    const description = data.description ? data.description.trim() : null;
+    const isPinned = data.isPinned ? 1 : 0;
 
     db.run(
-      `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.username, data.password, data.lastLogin || now, maxStorageGB, now, now]
+      `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, description, is_pinned, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, data.username, data.password, data.lastLogin || now, maxStorageGB, description, isPinned, now, now]
     );
 
     persistDatabase();
@@ -108,6 +116,8 @@ export class AccountRepo {
       password: data.password,
       lastLogin: data.lastLogin || now,
       maxStorageGB,
+      description: data.description ? data.description.trim() : undefined,
+      isPinned: Boolean(data.isPinned),
       createdAt: now,
       updatedAt: now,
       totalUsedMB: 0,
@@ -131,12 +141,18 @@ export class AccountRepo {
     const password = data.password !== undefined ? data.password : existing.password;
     const lastLogin = data.lastLogin !== undefined ? data.lastLogin : existing.lastLogin;
     const maxStorageGB = data.maxStorageGB !== undefined ? data.maxStorageGB : existing.maxStorageGB;
+    const description = data.description !== undefined
+      ? (data.description ? data.description.trim() : null)
+      : (existing.description || null);
+    const isPinned = data.isPinned !== undefined
+      ? (data.isPinned ? 1 : 0)
+      : (existing.isPinned ? 1 : 0);
 
     db.run(
       `UPDATE accounts 
-       SET username = ?, password = ?, last_login = ?, max_storage_gb = ?, updated_at = ?
+       SET username = ?, password = ?, last_login = ?, max_storage_gb = ?, description = ?, is_pinned = ?, updated_at = ?
        WHERE id = ?`,
-      [username, password, lastLogin, maxStorageGB, now, data.id]
+      [username, password, lastLogin, maxStorageGB, description, isPinned, now, data.id]
     );
 
     persistDatabase();
@@ -147,6 +163,8 @@ export class AccountRepo {
       password,
       lastLogin,
       maxStorageGB,
+      description: description || undefined,
+      isPinned: Boolean(isPinned),
       updatedAt: now,
     };
   }
@@ -160,5 +178,19 @@ export class AccountRepo {
     db.run('DELETE FROM accounts WHERE id = ?', [id]);
     persistDatabase();
     return true;
+  }
+
+  /**
+   * Toggles the pinned status of an account
+   */
+  static togglePin(id: string): Account {
+    const existing = this.getById(id);
+    if (!existing) {
+      throw new Error(`Account with id ${id} not found.`);
+    }
+    return this.update({
+      id,
+      isPinned: !existing.isPinned,
+    });
   }
 }

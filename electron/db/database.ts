@@ -114,6 +114,8 @@ function createSchema(db: Database): void {
       password TEXT NOT NULL,
       last_login TEXT NOT NULL,
       max_storage_gb REAL DEFAULT 6.0,
+      description TEXT,
+      is_pinned INTEGER DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -142,6 +144,22 @@ function createSchema(db: Database): void {
       updated_at TEXT NOT NULL
     );
   `);
+
+  // Auto-migration: Ensure description and is_pinned columns exist on existing accounts tables
+  try {
+    const tableInfo = db.exec("PRAGMA table_info(accounts);");
+    if (tableInfo.length > 0 && tableInfo[0].values) {
+      const colNames = tableInfo[0].values.map((v) => String(v[1]));
+      if (!colNames.includes("description")) {
+        db.run("ALTER TABLE accounts ADD COLUMN description TEXT;");
+      }
+      if (!colNames.includes("is_pinned")) {
+        db.run("ALTER TABLE accounts ADD COLUMN is_pinned INTEGER DEFAULT 0;");
+      }
+    }
+  } catch (err) {
+    console.warn("Migration for accounts columns check:", err);
+  }
 }
 
 /**
@@ -185,11 +203,11 @@ function seedInitialDataIfEmpty(db: Database): void {
   const acc3Id = 'acc-3';
 
 
-  // Account 1: Mega cloud storage
+  // Account 1: Mega cloud storage (Pinned by default for demo)
   db.run(
-    `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, created_at, updated_at)
-     VALUES (?, ?, ?, ?, 6.0, ?, ?)`,
-    [acc1Id, 'alexander.dev@megamail.com', 'P@ssw0rd!2026', '2026-09-04T12:30:00.000Z', now, now]
+    `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, description, is_pinned, created_at, updated_at)
+     VALUES (?, ?, ?, ?, 6.0, ?, 1, ?, ?)`,
+    [acc1Id, 'alexander.dev@megamail.com', 'P@ssw0rd!2026', '2026-09-04T12:30:00.000Z', 'Primary developer cloud backup storage', now, now]
   );
 
   // Stored items for Account 1
@@ -229,9 +247,9 @@ function seedInitialDataIfEmpty(db: Database): void {
 
   // Account 2: Media Vault
   db.run(
-    `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, created_at, updated_at)
-     VALUES (?, ?, ?, ?, 6.0, ?, ?)`,
-    [acc2Id, 'media.vault.backup@proton.me', 'Secur3#Tr4nsfer', '2026-09-01T09:15:00.000Z', now, now]
+    `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, description, is_pinned, created_at, updated_at)
+     VALUES (?, ?, ?, ?, 6.0, ?, 0, ?, ?)`,
+    [acc2Id, 'media.vault.backup@proton.me', 'Secur3#Tr4nsfer', '2026-09-01T09:15:00.000Z', 'Encrypted media and video master repository', now, now]
   );
 
   db.run(
@@ -253,9 +271,9 @@ function seedInitialDataIfEmpty(db: Database): void {
 
   // Account 3: Raw archive
   db.run(
-    `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, created_at, updated_at)
-     VALUES (?, ?, ?, ?, 6.0, ?, ?)`,
-    [acc3Id, 'storage.archive@fastmail.com', 'Arch1v3!9942', '2026-08-20T17:45:00.000Z', now, now]
+    `INSERT INTO accounts (id, username, password, last_login, max_storage_gb, description, is_pinned, created_at, updated_at)
+     VALUES (?, ?, ?, ?, 6.0, ?, 0, ?, ?)`,
+    [acc3Id, 'storage.archive@fastmail.com', 'Arch1v3!9942', '2026-08-20T17:45:00.000Z', 'Cold archive and documentation snapshots', now, now]
   );
 }
 

@@ -25,22 +25,32 @@ test('Storage Adapter (Fallback & Web Engine) CRUD Test', async () => {
   const initialAccounts = await browserApiFallback.getAccounts();
   assert.ok(initialAccounts.length >= 3, 'Initial accounts should be seeded');
 
-  // 2. Create new account
+  // 2. Create new account with description
   const newAcc = await browserApiFallback.createAccount({
     username: 'new.user@testvault.org',
     password: 'TestPassword#2026',
     lastLogin: new Date().toISOString(),
     maxStorageGB: 6.0,
+    description: 'Browser fallback account with custom description',
   });
   assert.ok(newAcc.id.startsWith('acc-'));
   assert.equal(newAcc.username, 'new.user@testvault.org');
+  assert.equal(newAcc.description, 'Browser fallback account with custom description');
 
   // 3. Verify it is shown in getAccounts()
   const updatedAccounts = await browserApiFallback.getAccounts();
   const found = updatedAccounts.find((a) => a.id === newAcc.id);
   assert.ok(found, 'Newly created account must be found in accounts list');
   assert.equal(found.username, 'new.user@testvault.org');
+  assert.equal(found.description, 'Browser fallback account with custom description');
   assert.equal(found.remainingGB, 6.0);
+
+  // 3b. Update account description
+  const updated = await browserApiFallback.updateAccount({
+    id: newAcc.id,
+    description: 'Updated description in browser adapter',
+  });
+  assert.equal(updated.description, 'Updated description in browser adapter');
 
   // 4. Add stored data item to the new account
   const newItem = await browserApiFallback.createItem({
@@ -61,8 +71,22 @@ test('Storage Adapter (Fallback & Web Engine) CRUD Test', async () => {
   assert.equal(accWithItem.totalUsedMB, 1500);
   assert.ok(accWithItem.remainingGB < 6.0);
 
+  // 5b. Test copying item to another account
+  const targetAcc = initialAccounts[0];
+  const copied = await browserApiFallback.copyItemToAccount(newItem.id, targetAcc.id);
+  assert.ok(copied.id.startsWith('item-'));
+  assert.notEqual(copied.id, newItem.id);
+  assert.equal(copied.accountId, targetAcc.id);
+  assert.equal(copied.fileName, newItem.fileName);
+  assert.equal(copied.fileSizeMB, 1500);
+
+  const targetItems = await browserApiFallback.getItemsByAccountId(targetAcc.id);
+  const foundCopiedItem = targetItems.find((i) => i.id === copied.id);
+  assert.ok(foundCopiedItem, 'Copied item should exist in target account');
+
   // 6. Test global search
   const searchResults = await browserApiFallback.searchGlobalItems('sample-video');
-  assert.ok(searchResults.length >= 1);
-  assert.equal(searchResults[0].account.username, 'new.user@testvault.org');
+  assert.ok(searchResults.length >= 2, 'Global search should now find both original and copied items');
+  assert.ok(searchResults.some((r) => r.account.username === 'new.user@testvault.org'));
+  assert.ok(searchResults.some((r) => r.account.username === targetAcc.username));
 });

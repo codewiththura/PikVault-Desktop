@@ -19,6 +19,8 @@ export interface Account {
   password: string;
   lastLogin: string;
   maxStorageGB: number;
+  description?: string;
+  isPinned?: boolean;
   createdAt: string;
   updatedAt: string;
   items?: StoredItem[];
@@ -57,11 +59,13 @@ export interface ElectronAPI {
   createAccount: (account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Account>;
   updateAccount: (account: Partial<Account> & { id: string }) => Promise<Account>;
   deleteAccount: (id: string) => Promise<boolean>;
+  toggleAccountPin?: (id: string) => Promise<Account>;
 
   getItemsByAccountId: (accountId: string) => Promise<StoredItem[]>;
   createItem: (item: Omit<StoredItem, 'id' | 'createdAt'>) => Promise<StoredItem>;
   updateItem: (item: Partial<StoredItem> & { id: string }) => Promise<StoredItem>;
   deleteItem: (id: string) => Promise<boolean>;
+  copyItemToAccount: (itemId: string, targetAccountId: string) => Promise<StoredItem>;
 
   searchGlobalItems: (query: string) => Promise<GlobalSearchResult[]>;
 

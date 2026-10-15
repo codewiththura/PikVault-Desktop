@@ -14,6 +14,8 @@ interface AccountModalProps {
     password: string;
     lastLogin: string;
     maxStorageGB: number;
+    description?: string;
+    isPinned?: boolean;
   }) => Promise<void>;
   accountToEdit?: Account | null;
 }
@@ -27,7 +29,9 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [lastLogin, setLastLogin] = useState("");
-  const [maxStorageGB, setMaxStorageGB] = useState(6);
+  const [maxStorageGB, setMaxStorageGB] = useState<number | "">(6);
+  const [description, setDescription] = useState("");
+  const [isPinned, setIsPinned] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,11 +48,15 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         setLastLogin(new Date().toISOString().slice(0, 16));
       }
       setMaxStorageGB(accountToEdit.maxStorageGB || 6);
+      setDescription(accountToEdit.description || "");
+      setIsPinned(Boolean(accountToEdit.isPinned));
     } else {
       setUsername("");
       setPassword("");
       setLastLogin(new Date().toISOString().slice(0, 16));
       setMaxStorageGB(6);
+      setDescription("");
+      setIsPinned(false);
     }
     setError("");
     setShowPassword(false);
@@ -65,16 +73,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       return;
     }
 
-    if (accountToEdit) {
-      if (
-        !confirm(
-          `Are you sure you want to update account "${username.trim()}"?`,
-        )
-      ) {
-        return;
-      }
-    }
-
     try {
       setIsSubmitting(true);
       await onSave({
@@ -82,7 +80,14 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         username: username.trim(),
         password: password.trim(),
         lastLogin: new Date(lastLogin).toISOString(),
-        maxStorageGB: Number(maxStorageGB) || 6,
+        maxStorageGB:
+          typeof maxStorageGB === "number" &&
+          !isNaN(maxStorageGB) &&
+          maxStorageGB > 0
+            ? maxStorageGB
+            : 6,
+        description: description.trim() || undefined,
+        isPinned,
       });
       onClose();
     } catch (err: any) {
@@ -213,15 +218,44 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           <input
             type="number"
             value={maxStorageGB}
-            onChange={(e) => setMaxStorageGB(Number(e.target.value))}
+            onChange={(e) =>
+              setMaxStorageGB(
+                e.target.value === "" ? "" : parseFloat(e.target.value)
+              )
+            }
             className="form-input"
             step="0.1"
             min="1"
             required
           />
           <span className="form-hint">
-            Default is 6 GB per account. Stored items size is tracked against
-            this limit.
+            Stored items size is tracked against this limit.
+          </span>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Description (Optional)</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Account description, notes, recovery information..."
+            className="form-textarea"
+            rows={2}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginTop: "12px", marginBottom: "8px" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "var(--text-primary)" }}>
+            <input
+              type="checkbox"
+              checked={isPinned}
+              onChange={(e) => setIsPinned(e.target.checked)}
+              style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "var(--accent-warning, #f59e0b)" }}
+            />
+            <span style={{ fontWeight: 500 }}>Pin account to top of ledger</span>
+          </label>
+          <span className="form-hint" style={{ marginTop: "4px", display: "block" }}>
+            Pinned accounts always appear at the top of the account list.
           </span>
         </div>
 

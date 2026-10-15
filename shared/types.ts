@@ -20,7 +20,9 @@ export interface Account {
   username: string; // Email / Username
   password: string;
   lastLogin: string; // ISO datetime string
-  maxStorageGB: number; // Constant 6 GB
+  description?: string; // Optional account description
+  isPinned?: boolean; // Pinned status (pinned accounts stay at top of list)
+  maxStorageGB: number; // Storage limit in GB
   createdAt: string;
   updatedAt: string;
   items?: StoredItem[];
@@ -48,6 +50,13 @@ export interface GlobalSearchResult {
   };
 }
 
+export interface DroppedFileInfo {
+  fileName: string;
+  fileSizeMB: number;
+  fileType: string;
+  originalSize: number; // in bytes
+}
+
 export interface BackupData {
   version: string;
   exportedAt: string;
@@ -61,12 +70,14 @@ export interface ElectronAPI {
   createAccount: (account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Account>;
   updateAccount: (account: Partial<Account> & { id: string }) => Promise<Account>;
   deleteAccount: (id: string) => Promise<boolean>;
+  toggleAccountPin?: (id: string) => Promise<Account>;
 
   // Items
   getItemsByAccountId: (accountId: string) => Promise<StoredItem[]>;
   createItem: (item: Omit<StoredItem, 'id' | 'createdAt'>) => Promise<StoredItem>;
   updateItem: (item: Partial<StoredItem> & { id: string }) => Promise<StoredItem>;
   deleteItem: (id: string) => Promise<boolean>;
+  copyItemToAccount: (itemId: string, targetAccountId: string) => Promise<StoredItem>;
 
   // Global Search
   searchGlobalItems: (query: string) => Promise<GlobalSearchResult[]>;

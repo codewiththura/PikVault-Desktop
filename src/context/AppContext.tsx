@@ -21,6 +21,7 @@ interface AppContextType {
   createAccount: (data: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Account | null>;
   updateAccount: (data: Partial<Account> & { id: string }) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
+  togglePinAccount: (id: string) => Promise<void>;
 
   // Sorting & Filtering Accounts
   accountSearch: string;
@@ -36,6 +37,7 @@ interface AppContextType {
   createItem: (data: Omit<StoredItem, 'id' | 'createdAt'>) => Promise<void>;
   updateItem: (data: Partial<StoredItem> & { id: string }) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
+  copyItemToAccount: (itemId: string, targetAccountId: string) => Promise<StoredItem | null>;
 
   // Item View Mode & Search
   itemViewMode: ViewMode;
@@ -251,6 +253,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const togglePinAccount = async (id: string) => {
+    try {
+      if (api.toggleAccountPin) {
+        await api.toggleAccountPin(id);
+      } else {
+        const acc = accounts.find((a) => a.id === id);
+        if (acc) {
+          await api.updateAccount({ id, isPinned: !acc.isPinned });
+        }
+      }
+      await loadAccounts();
+    } catch (err: any) {
+      setError(err?.message || 'Failed to toggle account pin');
+    }
+  };
+
   // Stored Items CRUD
   const createItem = async (data: Omit<StoredItem, 'id' | 'createdAt'>) => {
     try {
@@ -288,6 +306,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const copyItemToAccount = async (itemId: string, targetAccountId: string): Promise<StoredItem | null> => {
+    try {
+      const copied = await api.copyItemToAccount(itemId, targetAccountId);
+      await loadAccounts(); // Recompute account storage totals for both accounts
+      if (selectedAccountId === targetAccountId) {
+        await loadItems(selectedAccountId);
+      }
+      return copied;
+    } catch (err: any) {
+      setError(err?.message || 'Failed to copy stored item');
+      throw err;
+    }
+  };
+
   // Sorting Accounts
   const setSorting = (field: AccountSortField) => {
     if (sortField === field) {
@@ -299,11 +331,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const filteredAndSortedAccounts = React.useMemo(() => {
+    const q = accountSearch.toLowerCase().trim();
     let list = accounts.filter(acc => 
-      acc.username.toLowerCase().includes(accountSearch.toLowerCase().trim())
+      acc.username.toLowerCase().includes(q) ||
+      (acc.description && acc.description.toLowerCase().includes(q))
     );
 
     list.sort((a, b) => {
+      // 1. Pinned accounts ALWAYS come before unpinned accounts
+      const pinA = a.isPinned ? 1 : 0;
+      const pinB = b.isPinned ? 1 : 0;
+      if (pinA !== pinB) {
+        return pinB - pinA; // Pinned (1) comes before unpinned (0)
+      }
+
+      // 2. Secondary sorting by chosen field and direction
       let comparison = 0;
       if (sortField === 'name') {
         comparison = a.username.localeCompare(b.username);
@@ -391,6 +433,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         createAccount,
         updateAccount,
         deleteAccount,
+        togglePinAccount,
         accountSearch,
         setAccountSearch,
         sortField,
@@ -402,6 +445,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         createItem,
         updateItem,
         deleteItem,
+        copyItemToAccount,
         itemViewMode,
         setItemViewMode,
         itemSearch,

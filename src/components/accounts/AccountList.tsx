@@ -5,14 +5,15 @@ import { Account } from '../../types';
 
 interface AccountListProps {
   onEditAccount: (account: Account) => void;
+  onDeleteAccount: (account: Account) => void;
 }
 
-export const AccountList: React.FC<AccountListProps> = ({ onEditAccount }) => {
+export const AccountList: React.FC<AccountListProps> = ({ onEditAccount, onDeleteAccount }) => {
   const {
     filteredAndSortedAccounts,
     selectedAccountId,
     setSelectedAccountId,
-    deleteAccount,
+    togglePinAccount,
   } = useApp();
 
   if (filteredAndSortedAccounts.length === 0) {
@@ -26,7 +27,6 @@ export const AccountList: React.FC<AccountListProps> = ({ onEditAccount }) => {
       >
         No accounts found
       </div>
-
     );
   }
 
@@ -39,7 +39,8 @@ export const AccountList: React.FC<AccountListProps> = ({ onEditAccount }) => {
           isSelected={selectedAccountId === account.id}
           onSelect={() => setSelectedAccountId(account.id)}
           onEdit={onEditAccount}
-          onDelete={deleteAccount}
+          onDelete={onDeleteAccount}
+          onTogglePin={(acc) => togglePinAccount(acc.id)}
         />
       ))}
     </div>

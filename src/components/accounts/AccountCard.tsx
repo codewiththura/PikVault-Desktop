@@ -7,6 +7,7 @@ import {
   CheckIcon,
   EditIcon,
   TrashIcon,
+  PinIcon,
 } from "../common/Icons";
 import {
   formatDateTime,
@@ -19,7 +20,8 @@ interface AccountCardProps {
   isSelected: boolean;
   onSelect: () => void;
   onEdit: (account: Account) => void;
-  onDelete: (id: string) => void;
+  onDelete: (account: Account) => void;
+  onTogglePin?: (account: Account) => void;
 }
 
 export const AccountCard: React.FC<AccountCardProps> = ({
@@ -28,6 +30,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   onSelect,
   onEdit,
   onDelete,
+  onTogglePin,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState({ password: false, username: false });
@@ -74,13 +77,12 @@ export const AccountCard: React.FC<AccountCardProps> = ({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (
-      confirm(
-        `Delete account record "${account.username}" and all its stored items?`,
-      )
-    ) {
-      onDelete(account.id);
-    }
+    onDelete(account);
+  };
+
+  const handleTogglePin = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTogglePin?.(account);
   };
 
   return (
@@ -91,6 +93,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         borderBottom: "1px solid var(--border-subtle)",
         borderLeft: isSelected
           ? "3px solid var(--accent-white)"
+          : account.isPinned
+          ? "3px solid var(--accent-warning, #f59e0b)"
           : "3px solid transparent",
         background: isSelected ? "var(--bg-secondary)" : "transparent",
         cursor: "pointer",
@@ -112,8 +116,24 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           style={{
             display: "flex",
             alignItems: "center",
+            flex: 1,
+            minWidth: 0,
           }}
         >
+          {account.isPinned && (
+            <span
+              title="Pinned account"
+              style={{
+                color: "var(--accent-warning, #f59e0b)",
+                display: "inline-flex",
+                alignItems: "center",
+                marginRight: "6px",
+                flexShrink: 0,
+              }}
+            >
+              <PinIcon size={12} filled={true} />
+            </span>
+          )}
           <span
             style={{
               fontWeight: 600,
@@ -125,12 +145,14 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           </span>
           <button
             onClick={handleCopyUsername}
-            title="Copy password"
+            title="Copy username / email"
             style={{
               background: "transparent",
-              marginLeft: "8px",
+              marginLeft: "6px",
               border: "none",
-              color: copied ? "var(--accent-white)" : "var(--text-muted)",
+              color: copied.username
+                ? "var(--accent-white)"
+                : "var(--text-muted)",
               cursor: "pointer",
               padding: "2px",
               display: "flex",
@@ -139,18 +161,50 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             {copied.username ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
           </button>
         </div>
-        <span
+        <div
           style={{
-            background: "var(--bg-primary)",
-            border: "1px solid var(--border-subtle)",
-            padding: "1px 6px",
-            color: "var(--text-secondary)",
-            whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
             marginLeft: "6px",
+            flexShrink: 0,
           }}
         >
-          {account.itemCount || 0} items
-        </span>
+          {onTogglePin && (
+            <button
+              onClick={handleTogglePin}
+              title={account.isPinned ? "Unpin account from top" : "Pin account to top"}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: account.isPinned
+                  ? "var(--accent-warning, #f59e0b)"
+                  : "var(--text-muted)",
+                cursor: "pointer",
+                padding: "2px",
+                display: "flex",
+                alignItems: "center",
+                opacity: account.isPinned ? 1 : 0.6,
+                transition: "opacity var(--transition-fast), color var(--transition-fast)",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = account.isPinned ? '1' : '0.6'; }}
+            >
+              <PinIcon size={13} filled={Boolean(account.isPinned)} />
+            </button>
+          )}
+          <span
+            style={{
+              background: "var(--bg-primary)",
+              border: "1px solid var(--border-subtle)",
+              padding: "1px 6px",
+              color: "var(--text-secondary)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {account.itemCount || 0} items
+          </span>
+        </div>
       </div>
 
       {/* Password row with copy & show/hide */}
@@ -187,7 +241,9 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           style={{
             background: "transparent",
             border: "none",
-            color: copied ? "var(--accent-white)" : "var(--text-muted)",
+            color: copied.password
+              ? "var(--accent-white)"
+              : "var(--text-muted)",
             cursor: "pointer",
             padding: "2px",
             display: "flex",
